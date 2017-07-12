@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.constants.MyBearingTracking;
 import com.mapbox.mapboxsdk.constants.MyLocationTracking;
@@ -24,10 +25,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.TrackingSettings;
 import com.mapbox.mapboxsdk.maps.UiSettings;
 import com.mapbox.mapboxsdk.testapp.R;
-import com.mapzen.android.lost.api.LocationListener;
-import com.mapzen.android.lost.api.LocationRequest;
-import com.mapzen.android.lost.api.LocationServices;
-import com.mapzen.android.lost.api.LostApiClient;
+import com.mapbox.services.android.telemetry.location.LocationEngineListener;
 
 import timber.log.Timber;
 
@@ -39,10 +37,10 @@ import timber.log.Timber;
  * </p>
  */
 public class MyLocationTrackingModeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
-  OnMapReadyCallback, LocationListener {
+  OnMapReadyCallback, LocationEngineListener {
 
   // Testing for user defined LostApiClient
-  private LostApiClient lostApiClient;
+  //private LostApiClient lostApiClient;
 
   public static final int TRACKING_NONE_INDEX = 0;
   public static final int TRACKING_FOLLOW_INDEX = 1;
@@ -75,18 +73,22 @@ public class MyLocationTrackingModeActivity extends AppCompatActivity implements
   @Override
   public void onMapReady(MapboxMap mapboxMap) {
     MyLocationTrackingModeActivity.this.mapboxMap = mapboxMap;
-    lostApiClient = new LostApiClient.Builder(this).build();
-    lostApiClient.connect();
-    LocationRequest request = LocationRequest.create()
-      .setPriority(LocationRequest.PRIORITY_LOW_POWER)
-      .setInterval(5000)
-      .setSmallestDisplacement(10);
 
-    Location location = LocationServices.FusedLocationApi.getLastLocation();
-    if (location != null) {
-      setInitialLocation(location, 15);
-    }
-    LocationServices.FusedLocationApi.requestLocationUpdates(request, this);
+//    lostApiClient = new LostApiClient.Builder(this).build();
+//    lostApiClient.connect();
+//    LocationRequest request = LocationRequest.create()
+//      .setPriority(LocationRequest.PRIORITY_LOW_POWER)
+//      .setInterval(5000)
+//      .setSmallestDisplacement(10);
+
+    mapboxMap.setMyLocationEnabled(true);
+    Mapbox.getLocationSource().addLocationEngineListener(this);
+    Mapbox.getLocationSource().requestLocationUpdates();
+  }
+
+  @Override
+  public void onConnected() {
+    // Nothing
   }
 
   @Override
@@ -227,10 +229,12 @@ public class MyLocationTrackingModeActivity extends AppCompatActivity implements
   @Override
   protected void onStop() {
     super.onStop();
-    if (lostApiClient.isConnected()) {
-      LocationServices.FusedLocationApi.removeLocationUpdates(this);
-      lostApiClient.disconnect();
-    }
+    Mapbox.getLocationSource().removeLocationEngineListener(this);
+    Mapbox.getLocationSource().removeLocationUpdates();
+//    if (lostApiClient.isConnected()) {
+//      LocationServices.FusedLocationApi.removeLocationUpdates(this);
+//      lostApiClient.disconnect();
+//    }
     mapView.onStop();
   }
 

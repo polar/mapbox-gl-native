@@ -33,7 +33,6 @@ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.constants.MyBearingTracking;
 import com.mapbox.mapboxsdk.constants.MyLocationTracking;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.location.LocationSource;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.Projection;
 import com.mapbox.services.android.telemetry.location.LocationEngine;
@@ -160,7 +159,7 @@ public class MyLocationView extends View {
     compassListener = new CompassListener(context);
   }
 
-  public void init(LocationSource locationSource) {
+  public void init(LocationEngine locationSource) {
     this.locationSource = locationSource;
   }
 

@@ -7,7 +7,8 @@ ext {
     versionCode = 11
     versionName = "5.0.0"
 
-    mapboxServicesVersion = "2.2.3"
+    // TODO This has to be updated when https://github.com/mapbox/mapbox-java/pull/502 lands
+    mapboxServicesVersion = "2.3.0-SNAPSHOT"
     supportLibVersion = "25.4.0"
     espressoVersion = '3.0.1'
     testRunnerVersion = '1.0.1'

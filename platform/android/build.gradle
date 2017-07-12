@@ -11,6 +11,8 @@ buildscript {
 
 allprojects {
     repositories {
+        // TODO This has to be updated when https://github.com/mapbox/mapbox-java/pull/502 lands
+        mavenLocal()
         jcenter()
         maven { url 'https://maven.google.com' }
         maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
