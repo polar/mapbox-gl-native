@@ -28,6 +28,7 @@ import com.mapzen.android.lost.api.LostApiClient;
  * in the history stack.
  * </p>
  */
+@Deprecated
 public class LocationSource extends LocationEngine implements LocationListener {
 
   private Context context;
@@ -42,6 +43,13 @@ public class LocationSource extends LocationEngine implements LocationListener {
     super();
     this.context = context.getApplicationContext();
     lostApiClient = new LostApiClient.Builder(this.context).build();
+  }
+
+  /**
+   * Constructs a location source instance.
+   * Needed to create empty location source implementations.
+   */
+  public LocationSource() {
   }
 
   /**

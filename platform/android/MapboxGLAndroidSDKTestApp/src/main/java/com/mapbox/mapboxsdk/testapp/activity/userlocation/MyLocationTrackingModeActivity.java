@@ -82,8 +82,8 @@ public class MyLocationTrackingModeActivity extends AppCompatActivity implements
 //      .setSmallestDisplacement(10);
 
     mapboxMap.setMyLocationEnabled(true);
-    Mapbox.getLocationSource().addLocationEngineListener(this);
-    Mapbox.getLocationSource().requestLocationUpdates();
+    Mapbox.getLocationEngine().addLocationEngineListener(this);
+    Mapbox.getLocationEngine().requestLocationUpdates();
   }
 
   @Override
@@ -229,8 +229,8 @@ public class MyLocationTrackingModeActivity extends AppCompatActivity implements
   @Override
   protected void onStop() {
     super.onStop();
-    Mapbox.getLocationSource().removeLocationEngineListener(this);
-    Mapbox.getLocationSource().removeLocationUpdates();
+    Mapbox.getLocationEngine().removeLocationEngineListener(this);
+    Mapbox.getLocationEngine().removeLocationUpdates();
 //    if (lostApiClient.isConnected()) {
 //      LocationServices.FusedLocationApi.removeLocationUpdates(this);
 //      lostApiClient.disconnect();

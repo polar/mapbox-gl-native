@@ -10,6 +10,7 @@ import android.text.TextUtils;
 
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.exceptions.MapboxConfigurationException;
+import com.mapbox.mapboxsdk.location.LocationSource;
 import com.mapbox.mapboxsdk.net.ConnectivityReceiver;
 import com.mapbox.services.android.telemetry.MapboxTelemetry;
 import com.mapbox.services.android.telemetry.location.AndroidLocationSourceProvider;
@@ -163,7 +164,24 @@ public final class Mapbox {
     return (activeNetwork != null && activeNetwork.isConnected());
   }
 
-  public static LocationEngine getLocationSource() {
+  /**
+   * Returns a location source instance with empty methods.
+   *
+   * @return an empty location source implementation
+   * @deprecated Replaced by {@link Mapbox#getLocationEngine()}
+   */
+  @Deprecated
+  public static LocationSource getLocationSource() {
+    return new EmptyLocationSource();
+  }
+
+
+  /**
+   * Returns the location engine used by the SDK.
+   *
+   * @return the location engine configured
+   */
+  public static LocationEngine getLocationEngine() {
     return INSTANCE.locationSource;
   }
 }

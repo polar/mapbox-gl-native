@@ -532,7 +532,7 @@ public class MyLocationView extends View {
     if (enableGps) {
       if (locationSource == null) {
         if (!isCustomLocationSource) {
-          locationSource = Mapbox.getLocationSource();
+          locationSource = Mapbox.getLocationEngine();
         } else {
           return;
         }
