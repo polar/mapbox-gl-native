@@ -2622,6 +2622,16 @@ public:
     {
         id <MGLFeature> feature = [(MGLFeatureAccessibilityElement *)element feature];
         NSUInteger featureIndex = [visiblePlaceFeatures indexOfObject:feature];
+        if (featureIndex == NSNotFound)
+        {
+            featureIndex = [visiblePlaceFeatures indexOfObjectPassingTest:^BOOL (id <MGLFeature> _Nonnull visibleFeature, NSUInteger idx, BOOL * _Nonnull stop) {
+                return [visibleFeature.identifier isEqual:feature.identifier];
+            }];
+        }
+        if (featureIndex == NSNotFound)
+        {
+            return NSNotFound;
+        }
         return visiblePlaceFeatureRange.location + featureIndex;
     }
     
