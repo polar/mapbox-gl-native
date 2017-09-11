@@ -243,6 +243,8 @@ set(MBGL_CORE_FILES
     src/mbgl/renderer/layers/render_symbol_layer.hpp
 
     # renderer/sources
+    src/mbgl/renderer/sources/render_custom_vector_source.cpp
+    src/mbgl/renderer/sources/render_custom_vector_source.hpp
     src/mbgl/renderer/sources/render_geojson_source.cpp
     src/mbgl/renderer/sources/render_geojson_source.hpp
     src/mbgl/renderer/sources/render_image_source.cpp
@@ -444,10 +446,14 @@ set(MBGL_CORE_FILES
     src/mbgl/style/layers/symbol_layer_properties.hpp
 
     # style/sources
+    include/mbgl/style/sources/custom_vector_source.hpp
     include/mbgl/style/sources/geojson_source.hpp
     include/mbgl/style/sources/image_source.hpp
     include/mbgl/style/sources/raster_source.hpp
     include/mbgl/style/sources/vector_source.hpp
+    src/mbgl/style/sources/custom_vector_source.cpp
+    src/mbgl/style/sources/custom_vector_source_impl.cpp
+    src/mbgl/style/sources/custom_vector_source_impl.hpp
     src/mbgl/style/sources/geojson_source.cpp
     src/mbgl/style/sources/geojson_source_impl.cpp
     src/mbgl/style/sources/geojson_source_impl.hpp
