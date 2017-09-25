@@ -1,4 +1,5 @@
 #include <mbgl/tile/custom_tile.hpp>
+#include <mbgl/tile/geojson_tile_data.hpp>
 #include <mbgl/tile/geometry_tile_data.hpp>
 #include <mbgl/renderer/query.hpp>
 #include <mbgl/renderer/tile_parameters.hpp>
@@ -9,24 +10,26 @@
 #include <mapbox/geojsonvt.hpp>
 
 namespace mbgl {
+namespace style {
 
 CustomTile::CustomTile(const OverscaledTileID& overscaledTileID,
                          std::string sourceID_,
                          const TileParameters& parameters,
-                         const style::GeoJSONOptions options_)
+                         const style::GeoJSONOptions options_,
+                         ActorRef<style::CustomTileLoader> loader_)
     : GeometryTile(overscaledTileID, sourceID_, parameters),
+    necessity(Resource::Optional),
     options(options_),
+    loader(loader_),
     actor(*Scheduler::GetCurrent(), std::bind(&CustomTile::setTileData, this, std::placeholders::_1, std::placeholders::_2)) {
-
 }
 
-void CustomTile::setTileData(const CanonicalTileID&, const style::FetchTileResult& result) {
-    if (result.is<style::Error>()) {
-        Log::Error(Event::Render, "FetchTile (%d, %d, %d) error: %s", id.canonical.z, id.canonical.x, id.canonical.y, result.get<style::Error>().message.c_str());
-        return;
-    }
+CustomTile::~CustomTile() {
+    loader.invoke(&style::CustomTileLoader::removeTile, id.canonical);
+}
+
+void CustomTile::setTileData(const CanonicalTileID&, const mapbox::geojson::geojson& geoJSON) {
     
-    auto geoJSON = result.get<mapbox::geojson::geojson>();
     auto data = mapbox::geometry::feature_collection<int16_t>();
     if (geoJSON.is<FeatureCollection>() && !geoJSON.get<FeatureCollection>().empty()) {
         const double scale = util::EXTENT / options.tileSize;
@@ -42,7 +45,16 @@ void CustomTile::setTileData(const CanonicalTileID&, const style::FetchTileResul
     setData(std::make_unique<GeoJSONTileData>(std::move(data)));
 }
 
-void CustomTile::setNecessity(Necessity) {}
+void CustomTile::setNecessity(Necessity newNecessity) {
+   if (newNecessity != necessity) {
+        necessity = newNecessity;
+        if (necessity == Necessity::Required) {
+            loader.invoke(&style::CustomTileLoader::fetchTile, id.canonical, actor.self());
+        } else if(!isRenderable()) {
+            loader.invoke(&style::CustomTileLoader::cancelTile, id.canonical);
+        }
+    }
+}
     
 void CustomTile::querySourceFeatures(
     std::vector<Feature>& result,
@@ -66,8 +78,5 @@ void CustomTile::querySourceFeatures(
     }
 }
 
-ActorRef<style::FetchTileCallback> CustomTile::fetchTileCallback() {
-    return actor.self();
-}
-
+} // namespace style
 } // namespace mbgl

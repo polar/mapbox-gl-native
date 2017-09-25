@@ -5,30 +5,47 @@
 #include <mbgl/util/geo.hpp>
 #include <mbgl/util/geojson.hpp>
 #include <mbgl/util/variant.hpp>
+#include <mbgl/actor/actor_ref.hpp>
+#include <mbgl/util/noncopyable.hpp>
 
 namespace mbgl {
 namespace style {
 
 struct Error { std::string message; };
 
-using FetchTileResult = variant<
-    mapbox::geojson::geojson,
-    Error>;
+using SetTileDataFunction = std::function<void(const CanonicalTileID& tileID, const mapbox::geojson::geojson&)>;
+using TileFunction = std::function<void(const CanonicalTileID&)>;
 
-using FetchTileCallback = std::function<void(const CanonicalTileID& tileID, const FetchTileResult&)>;
-using FetchTileFunction = std::function<void(const CanonicalTileID&, FetchTileCallback)>;
+class CustomTileLoader : private util::noncopyable {
+public:
+    CustomTileLoader(TileFunction&& fetchTileFn, TileFunction&& cancelTileFn);
+    ~CustomTileLoader();
+    void fetchTile(const CanonicalTileID& tileID, ActorRef<SetTileDataFunction> callbackRef);
+    void cancelTile(const CanonicalTileID& tileID);
+    void setTileData(const CanonicalTileID& tileID, const mapbox::geojson::geojson& data);
+    void removeTile(const CanonicalTileID& tileID);
+private:
+    class Impl;
+    Impl* impl = nullptr;
+};
 
 class CustomVectorSource : public Source {
 public:
     CustomVectorSource(std::string id,
                        GeoJSONOptions options,
-                       FetchTileFunction fetchTile);
+                       TileFunction fetchTile,
+                       TileFunction cancelTile);
 
     void loadDescription(FileSource&) final;
+    void setTileData(const CanonicalTileID&, const mapbox::geojson::geojson& geojson);
 
     // Private implementation
     class Impl;
     const Impl& impl() const;
+private:
+    std::shared_ptr<Mailbox> mailbox;
+    CustomTileLoader loader;
+
 };
 
 template <>

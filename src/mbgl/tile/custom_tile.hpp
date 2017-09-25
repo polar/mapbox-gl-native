@@ -9,14 +9,17 @@ namespace mbgl {
 
 class TileParameters;
 
+namespace style {
+
 class CustomTile: public GeometryTile {
 public:
     CustomTile(const OverscaledTileID&,
                std::string sourceID,
                const TileParameters&,
-               const style::GeoJSONOptions);
-
-    void setTileData(const CanonicalTileID& tileID, const style::FetchTileResult& result);
+               const style::GeoJSONOptions,
+               ActorRef<style::CustomTileLoader> loader);
+    ~CustomTile() override;
+    void setTileData(const CanonicalTileID& tileID, const mapbox::geojson::geojson& data);
 
     void setNecessity(Necessity) final;
     
@@ -24,10 +27,12 @@ public:
         std::vector<Feature>& result,
         const SourceQueryOptions&) override;
     
-    ActorRef<style::FetchTileCallback> fetchTileCallback();
 private:
+    Necessity necessity;
     const style::GeoJSONOptions options;
-    Actor<style::FetchTileCallback> actor;
+    ActorRef<style::CustomTileLoader> loader;
+    Actor<style::SetTileDataFunction> actor;
 };
 
+} // namespace style
 } // namespace mbgl

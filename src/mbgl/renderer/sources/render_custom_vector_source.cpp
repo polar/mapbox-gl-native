@@ -1,13 +1,10 @@
 #include <mbgl/renderer/sources/render_custom_vector_source.hpp>
 #include <mbgl/renderer/render_tile.hpp>
 #include <mbgl/renderer/paint_parameters.hpp>
-#include <mbgl/tile/geojson_tile.hpp>
-#include <mbgl/util/logging.hpp>
+#include <mbgl/tile/custom_tile.hpp>
 
 #include <mbgl/algorithm/generate_clip_ids.hpp>
 #include <mbgl/algorithm/generate_clip_ids_impl.hpp>
-
-#include <mapbox/geojsonvt.hpp>
 
 namespace mbgl {
 
@@ -26,35 +23,6 @@ bool RenderCustomVectorSource::isLoaded() const {
     return tilePyramid.isLoaded();
 }
 
-void RenderCustomVectorSource::setTileData(const CanonicalTileID& tileID,
-                                           const style::FetchTileResult& result) {
-    if (result.is<style::Error>()) {
-        Log::Error(Event::Render, "FetchTile (%d, %d, %d) error: %s", tileID.z, tileID.x, tileID.y, result.get<style::Error>().message.c_str());
-        return;
-    }
-    
-    auto geoJSON = result.get<mapbox::geojson::geojson>();
-    auto data = mapbox::geometry::feature_collection<int16_t>();
-    if (geoJSON.is<FeatureCollection>() && !geoJSON.get<FeatureCollection>().empty()) {
-        const GeoJSONOptions options = impl().getOptions();
-
-        const double scale = util::EXTENT / options.tileSize;
-        
-        mapbox::geojsonvt::Options vtOptions;
-        vtOptions.maxZoom = options.maxzoom;
-        vtOptions.extent = util::EXTENT;
-        vtOptions.buffer = std::round(scale * options.buffer);
-        vtOptions.tolerance = scale * options.tolerance;
-        auto geojsonVt = std::make_unique<mapbox::geojsonvt::GeoJSONVT>(geoJSON, vtOptions);
-        data = geojsonVt->getTile(tileID.z, tileID.x, tileID.y).features;
-    }
-    for (auto const& item : tilePyramid.tiles) {
-        if (item.first.canonical == tileID) {
-            static_cast<GeoJSONTile*>(item.second.get())->updateData(data);
-        }
-    }
-}
-
 void RenderCustomVectorSource::update(Immutable<style::Source::Impl> baseImpl_,
                                  const std::vector<Immutable<Layer::Impl>>& layers,
                                  const bool needsRendering,
@@ -64,9 +32,11 @@ void RenderCustomVectorSource::update(Immutable<style::Source::Impl> baseImpl_,
 
     enabled = needsRendering;
 
-    auto fetchTile = impl().getFetchTileFunction();
+    auto tileLoader = impl().getTileLoader();
     
-    FetchTileCallback fetchTileCallback = std::bind(&RenderCustomVectorSource::setTileData, this, std::placeholders::_1, std::placeholders::_2);
+    if (!tileLoader) {
+        return;
+    }
 
     const GeoJSONOptions options = impl().getOptions();
     tilePyramid.update(layers,
@@ -77,8 +47,7 @@ void RenderCustomVectorSource::update(Immutable<style::Source::Impl> baseImpl_,
                        util::tileSize,
                        { options.minzoom, options.maxzoom },
                        [&] (const OverscaledTileID& tileID) {
-                           fetchTile(tileID.canonical, fetchTileCallback);
-                           return std::make_unique<GeoJSONTile>(tileID, impl().id, parameters, mapbox::geometry::feature_collection<int16_t>());
+                           return std::make_unique<CustomTile>(tileID, impl().id, parameters, impl().getOptions(), *tileLoader);
                        });
 }
 

@@ -9,11 +9,17 @@ namespace mbgl {
 namespace style {
 
 CustomVectorSource::Impl::Impl(std::string id_,
-                               const GeoJSONOptions options_,
-                               FetchTileFunction fetchTileFn_)
+                               const GeoJSONOptions options_)
     : Source::Impl(SourceType::CustomVector, std::move(id_)),
       options(options_),
-      fetchTileFn(fetchTileFn_) {
+      loaderRef({}) {
+}
+
+CustomVectorSource::Impl::Impl(const Impl& impl, ActorRef<CustomTileLoader> loaderRef_)
+    : Source::Impl(impl),
+    options(impl.options),
+    loaderRef(loaderRef_){
+    
 }
 
 optional<std::string> CustomVectorSource::Impl::getAttribution() const {
@@ -24,8 +30,8 @@ GeoJSONOptions CustomVectorSource::Impl::getOptions() const {
     return options;
 }
 
-FetchTileFunction CustomVectorSource::Impl::getFetchTileFunction() const {
-    return fetchTileFn;
+optional<ActorRef<CustomTileLoader>> CustomVectorSource::Impl::getTileLoader() const {
+    return loaderRef;
 }
 
 } // namespace style
