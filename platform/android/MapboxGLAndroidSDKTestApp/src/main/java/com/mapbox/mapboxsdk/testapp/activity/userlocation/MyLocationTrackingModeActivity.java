@@ -39,9 +39,6 @@ import timber.log.Timber;
 public class MyLocationTrackingModeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
   OnMapReadyCallback, LocationEngineListener {
 
-  // Testing for user defined LostApiClient
-  //private LostApiClient lostApiClient;
-
   public static final int TRACKING_NONE_INDEX = 0;
   public static final int TRACKING_FOLLOW_INDEX = 1;
   public static final int BEARING_NONE_INDEX = 0;
@@ -73,13 +70,6 @@ public class MyLocationTrackingModeActivity extends AppCompatActivity implements
   @Override
   public void onMapReady(MapboxMap mapboxMap) {
     MyLocationTrackingModeActivity.this.mapboxMap = mapboxMap;
-
-//    lostApiClient = new LostApiClient.Builder(this).build();
-//    lostApiClient.connect();
-//    LocationRequest request = LocationRequest.create()
-//      .setPriority(LocationRequest.PRIORITY_LOW_POWER)
-//      .setInterval(5000)
-//      .setSmallestDisplacement(10);
 
     mapboxMap.setMyLocationEnabled(true);
     Mapbox.getLocationEngine().addLocationEngineListener(this);
@@ -231,10 +221,6 @@ public class MyLocationTrackingModeActivity extends AppCompatActivity implements
     super.onStop();
     Mapbox.getLocationEngine().removeLocationEngineListener(this);
     Mapbox.getLocationEngine().removeLocationUpdates();
-//    if (lostApiClient.isConnected()) {
-//      LocationServices.FusedLocationApi.removeLocationUpdates(this);
-//      lostApiClient.disconnect();
-//    }
     mapView.onStop();
   }
 

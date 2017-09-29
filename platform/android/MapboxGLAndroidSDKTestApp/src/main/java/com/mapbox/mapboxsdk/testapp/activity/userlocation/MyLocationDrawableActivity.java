@@ -25,7 +25,6 @@ public class MyLocationDrawableActivity extends BaseLocationActivity implements 
 
   private MapView mapView;
   private MapboxMap mapboxMap;
-//  private LostApiClient lostApiClient;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,15 +62,6 @@ public class MyLocationDrawableActivity extends BaseLocationActivity implements 
   @Override
   protected void enableLocation(boolean enabled) {
     mapboxMap.setMyLocationEnabled(enabled);
-//    if (lostApiClient == null) {
-//      lostApiClient = new LostApiClient.Builder(this).build();
-//      lostApiClient.connect();
-//      LocationRequest request = LocationRequest.create()
-//        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-//        .setInterval(5000)
-//        .setSmallestDisplacement(10);
-//      LocationServices.FusedLocationApi.requestLocationUpdates(request, this);
-//    }
   }
 
   @Override
@@ -106,10 +96,6 @@ public class MyLocationDrawableActivity extends BaseLocationActivity implements 
   protected void onStop() {
     super.onStop();
     mapView.onStop();
-//    if (lostApiClient.isConnected()) {
-//      LocationServices.FusedLocationApi.removeLocationUpdates(this);
-//      lostApiClient.disconnect();
-//    }
   }
 
   @Override
