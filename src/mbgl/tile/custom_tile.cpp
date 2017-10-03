@@ -21,14 +21,14 @@ CustomTile::CustomTile(const OverscaledTileID& overscaledTileID,
     necessity(Resource::Optional),
     options(options_),
     loader(loader_),
-    actor(*Scheduler::GetCurrent(), std::bind(&CustomTile::setTileData, this, std::placeholders::_1, std::placeholders::_2)) {
+    actor(*Scheduler::GetCurrent(), std::bind(&CustomTile::setTileData, this, std::placeholders::_1)) {
 }
 
 CustomTile::~CustomTile() {
-    loader.invoke(&style::CustomTileLoader::removeTile, id.canonical);
+    loader.invoke(&style::CustomTileLoader::removeTile, id);
 }
 
-void CustomTile::setTileData(const CanonicalTileID&, const mapbox::geojson::geojson& geoJSON) {
+void CustomTile::setTileData(const mapbox::geojson::geojson& geoJSON) {
     
     auto featureData = mapbox::geometry::feature_collection<int16_t>();
     if (geoJSON.is<FeatureCollection>() && !geoJSON.get<FeatureCollection>().empty()) {
@@ -49,9 +49,9 @@ void CustomTile::setNecessity(Necessity newNecessity) {
    if (newNecessity != necessity) {
         necessity = newNecessity;
         if (necessity == Necessity::Required) {
-            loader.invoke(&style::CustomTileLoader::fetchTile, id.canonical, actor.self());
+            loader.invoke(&style::CustomTileLoader::fetchTile, id, actor.self());
         } else if(!isRenderable()) {
-            loader.invoke(&style::CustomTileLoader::cancelTile, id.canonical);
+            loader.invoke(&style::CustomTileLoader::cancelTile, id);
         }
     }
 }

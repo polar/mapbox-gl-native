@@ -19,7 +19,7 @@ public:
                const style::GeoJSONOptions,
                ActorRef<style::CustomTileLoader> loader);
     ~CustomTile() override;
-    void setTileData(const CanonicalTileID& tileID, const mapbox::geojson::geojson& data);
+    void setTileData(const mapbox::geojson::geojson& data);
 
     void setNecessity(Necessity) final;
     
