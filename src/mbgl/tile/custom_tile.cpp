@@ -30,7 +30,7 @@ CustomTile::~CustomTile() {
 
 void CustomTile::setTileData(const CanonicalTileID&, const mapbox::geojson::geojson& geoJSON) {
     
-    auto data = mapbox::geometry::feature_collection<int16_t>();
+    auto featureData = mapbox::geometry::feature_collection<int16_t>();
     if (geoJSON.is<FeatureCollection>() && !geoJSON.get<FeatureCollection>().empty()) {
         const double scale = util::EXTENT / options.tileSize;
 
@@ -40,9 +40,9 @@ void CustomTile::setTileData(const CanonicalTileID&, const mapbox::geojson::geoj
         vtOptions.buffer = std::round(scale * options.buffer);
         vtOptions.tolerance = scale * options.tolerance;
         auto geojsonVt = std::make_unique<mapbox::geojsonvt::GeoJSONVT>(geoJSON, vtOptions);
-        data = geojsonVt->getTile(id.canonical.z, id.canonical.x, id.canonical.y).features;
+        featureData = geojsonVt->getTile(id.canonical.z, id.canonical.x, id.canonical.y).features;
     }
-    setData(std::make_unique<GeoJSONTileData>(std::move(data)));
+    setData(std::make_unique<GeoJSONTileData>(std::move(featureData)));
 }
 
 void CustomTile::setNecessity(Necessity newNecessity) {
