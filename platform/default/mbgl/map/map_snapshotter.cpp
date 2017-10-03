@@ -87,6 +87,7 @@ std::unique_ptr<style::Style> MapSnapshotter::Impl::getStyle() const {
 
 void MapSnapshotter::Impl::setSize(Size size) {
     map.setSize(size);
+    frontend.setSize(size);
 }
 
 Size MapSnapshotter::Impl::getSize() const {
