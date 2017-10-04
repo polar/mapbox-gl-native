@@ -57,3 +57,8 @@ double MGLZoomLevelForAltitude(CLLocationDistance altitude, CGFloat pitch, CLLoc
     CGFloat mapPixelWidthAtZoom = std::cos(MGLRadiansFromDegrees(latitude)) * mbgl::util::M2PI * mbgl::util::EARTH_RADIUS_M / metersPerPixel;
     return ::log2(mapPixelWidthAtZoom / mbgl::util::tileSize);
 }
+
+CGPoint MGLPointRounded(CGPoint point) {
+    CGFloat scale = [UIScreen mainScreen].scale;
+    return CGPointMake(round(point.x * scale) / scale, round(point.y * scale) / scale);
+}
