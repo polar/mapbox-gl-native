@@ -22,11 +22,11 @@ public:
     void setTileData(const mapbox::geojson::geojson& data);
 
     void setNecessity(Necessity) final;
-    
+
     void querySourceFeatures(
         std::vector<Feature>& result,
         const SourceQueryOptions&) override;
-    
+
 private:
     Necessity necessity;
     const style::GeoJSONOptions options;

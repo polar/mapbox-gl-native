@@ -29,7 +29,7 @@ CustomTile::~CustomTile() {
 }
 
 void CustomTile::setTileData(const mapbox::geojson::geojson& geoJSON) {
-    
+
     auto featureData = mapbox::geometry::feature_collection<int16_t>();
     if (geoJSON.is<FeatureCollection>() && !geoJSON.get<FeatureCollection>().empty()) {
         const double scale = util::EXTENT / options.tileSize;
@@ -55,14 +55,14 @@ void CustomTile::setNecessity(Necessity newNecessity) {
         }
     }
 }
-    
+
 void CustomTile::querySourceFeatures(
     std::vector<Feature>& result,
     const SourceQueryOptions& queryOptions) {
-    
+
     // Ignore the sourceLayer, there is only one
     auto layer = getData()->getLayer({});
-    
+
     if (layer) {
         auto featureCount = layer->featureCount();
         for (std::size_t i = 0; i < featureCount; i++) {
@@ -72,7 +72,7 @@ void CustomTile::querySourceFeatures(
             if (queryOptions.filter && !(*queryOptions.filter)(*feature)) {
                 continue;
             }
-            
+
             result.push_back(convertFeature(*feature, id.canonical));
         }
     }
