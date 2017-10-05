@@ -186,4 +186,81 @@ const CGFloat MGLSnapshotterMinimumPixelSize = 64;
     _mbglMapSnapshotter.reset();
 }
 
+- (NSURL*)styleURL;
+{
+    NSString *styleURLString = @(_mbglMapSnapshotter->getStyleURL().c_str());
+    return styleURLString && styleURLString.length > 0 ? [NSURL URLWithString:styleURLString] : nil;
+}
+
+- (void)setStyleURL:(NSURL*)url;
+{
+    _mbglMapSnapshotter->setStyleURL(std::string([url.absoluteString UTF8String]));
+}
+
+- (CGSize)size;
+{
+    mbgl::Size size = _mbglMapSnapshotter->getSize();
+    return CGSizeMake(size.width, size.height);
+}
+
+- (void)setSize:(CGSize)size;
+{
+    _mbglMapSnapshotter->setSize({
+        static_cast<uint32_t>(MAX(size.width, MGLSnapshotterMinimumPixelSize)),
+        static_cast<uint32_t>(MAX(size.height, MGLSnapshotterMinimumPixelSize))
+    });
+}
+
+- (MGLMapCamera*)camera;
+{
+    mbgl::CameraOptions cameraOptions = _mbglMapSnapshotter->getCameraOptions();
+    CGFloat pitch = *cameraOptions.pitch;
+    CLLocationDirection heading = mbgl::util::wrap(*cameraOptions.angle, 0., 360.);
+    CLLocationDistance distance = MGLAltitudeForZoomLevel(*cameraOptions.zoom, pitch, cameraOptions.center->latitude(), [self size]);
+    return [MGLMapCamera cameraLookingAtCenterCoordinate:MGLLocationCoordinate2DFromLatLng(*cameraOptions.center)
+                                                   fromDistance:distance
+                                                          pitch:pitch
+                                                        heading:heading];
+}
+
+- (void)setCamera:(MGLMapCamera*)camera;
+{
+    mbgl::CameraOptions cameraOptions;
+    CLLocationCoordinate2D center;
+    if (CLLocationCoordinate2DIsValid(camera.centerCoordinate)) {
+        cameraOptions.center = MGLLatLngFromLocationCoordinate2D(camera.centerCoordinate);
+        center = camera.centerCoordinate;
+    } else {
+        // Center is optional, but always set.
+        center = MGLLocationCoordinate2DFromLatLng(*_mbglMapSnapshotter->getCameraOptions().center);
+    }
+    
+    cameraOptions.angle = MAX(0, camera.heading) * mbgl::util::DEG2RAD;
+    cameraOptions.zoom = MAX(0, MGLZoomLevelForAltitude(camera.altitude, camera.pitch, center.latitude, [self size]));
+    cameraOptions.pitch = MAX(0, camera.pitch);
+}
+
+- (double)zoomLevel;
+{
+    mbgl::CameraOptions cameraOptions = _mbglMapSnapshotter->getCameraOptions();
+    return MGLAltitudeForZoomLevel(*cameraOptions.zoom, *cameraOptions.pitch, cameraOptions.center->latitude(), [self size]);
+}
+
+- (void)setZoomLevel:(double)zoomLevel;
+{
+    mbgl::CameraOptions cameraOptions = _mbglMapSnapshotter->getCameraOptions();
+    cameraOptions.zoom = zoomLevel;
+    _mbglMapSnapshotter->setCameraOptions(cameraOptions);
+}
+
+- (MGLCoordinateBounds)coordinateBounds;
+{
+    return MGLCoordinateBoundsFromLatLngBounds(_mbglMapSnapshotter->getRegion());
+}
+
+- (void)setCoordinateBounds:(MGLCoordinateBounds)coordinateBounds;
+{
+    _mbglMapSnapshotter->setRegion(MGLLatLngBoundsFromCoordinateBounds(coordinateBounds));
+}
+
 @end

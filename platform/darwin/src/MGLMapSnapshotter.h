@@ -46,7 +46,7 @@ MGL_EXPORT
 @property (nonatomic) MGLMapCamera *camera;
 
 /**
- The cooordinate rectangle that encompasses the bounds to capture.
+ The coordinate rectangle that encompasses the bounds to capture.
  
  If this property is non-empty and the camera property is non-nil, the camera’s
  center coordinate and altitude are ignored in favor of this property’s value.
@@ -137,6 +137,37 @@ MGL_EXPORT
  snapshot, create a new `MGLMapSnapshotter` object.
  */
 - (void)cancel;
+
+/**
+ The zoom level.
+ 
+ The default zoom level is 0. This overwrites the camera zoom level if set.
+ */
+@property (nonatomic) double zoomLevel;
+
+/**
+ A camera representing the viewport visible in the snapshot.
+ 
+ This overwrites the coordinate bounds if set.
+ */
+@property (nonatomic) MGLMapCamera *camera;
+
+/**
+ The coordinate rectangle that encompasses the bounds to capture.
+ 
+ This overwrites the camera if set.
+ */
+@property (nonatomic) MGLCoordinateBounds coordinateBounds;
+
+/**
+ URL of the map style to snapshot.
+ */
+@property (nonatomic) NSURL* styleURL;
+
+/**
+ The image size.
+ */
+@property (nonatomic) CGSize size;
 
 /**
  Indicates whether as snapshot is currently being generated.
