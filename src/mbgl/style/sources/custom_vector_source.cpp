@@ -3,6 +3,7 @@
 #include <mbgl/actor/scheduler.hpp>
 
 #include <tuple>
+#include <map>
 
 namespace mbgl {
 namespace style {
@@ -18,7 +19,12 @@ public:
     }
 
     void fetchTile(const OverscaledTileID& tileID, ActorRef<SetTileDataFunction> callbackRef) {
-        fetchTileFunction(tileID.canonical);
+        auto cachedTileData = dataCache.find(tileID.canonical);
+        if (cachedTileData == dataCache.end()) {
+            fetchTileFunction(tileID.canonical);
+        } else {
+            callbackRef.invoke(&SetTileDataFunction::operator(), *(cachedTileData->second));
+        }
         auto tileCallbacks = tileCallbackMap.find(tileID.canonical);
         if (tileCallbacks == tileCallbackMap.end()) {
             auto tuple = std::make_tuple(tileID.overscaledZ, tileID.wrap, callbackRef);
@@ -52,6 +58,7 @@ public:
         }
         if (tileCallbacks->second.size() == 0) {
             tileCallbackMap.erase(tileCallbacks);
+            dataCache.erase(tileID.canonical);
         }
         
     }
@@ -59,6 +66,7 @@ public:
     void setTileData(const CanonicalTileID& tileID, const mapbox::geojson::geojson& data) {
         auto iter = tileCallbackMap.find(tileID);
         if (iter == tileCallbackMap.end()) return;
+        dataCache[tileID] = std::make_unique<mapbox::geojson::geojson>(data);
         for(auto tuple : iter->second) {
             auto actor = std::get<2>(tuple);
             actor.invoke(&SetTileDataFunction::operator(), data);
@@ -69,8 +77,8 @@ private:
     TileFunction fetchTileFunction;
     TileFunction cancelTileFunction;
     std::unordered_map<CanonicalTileID, std::vector<OverscaledIDFunctionTuple>> tileCallbackMap;
+    std::map<CanonicalTileID, std::unique_ptr<mapbox::geojson::geojson>> dataCache;
 };
-
 
 CustomTileLoader::CustomTileLoader(TileFunction&& fetchTileFn, TileFunction&& cancelTileFn)
     : impl(new CustomTileLoader::Impl(std::move(fetchTileFn), std::move(cancelTileFn))) {
