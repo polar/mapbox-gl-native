@@ -25,6 +25,12 @@ public:
     Style(Scheduler&, FileSource&, float pixelRatio);
     ~Style();
 
+    Style(const Style&);
+    Style& operator=(const Style&) = delete;
+
+    Style(Style&&) = delete;
+    Style& operator=(Style&&) = delete;
+
     void loadJSON(const std::string&);
     void loadURL(const std::string&);
 

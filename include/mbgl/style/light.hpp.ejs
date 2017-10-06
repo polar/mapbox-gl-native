@@ -20,6 +20,12 @@ public:
     Light();
     ~Light();
 
+    Light(const Light&) = default;
+    Light& operator=(const Light&) = default;
+
+    Light(Light&&) = default;
+    Light& operator=(Light&&) = default;
+
 <% for (const property of properties) { -%>
     static <%- evaluatedType(property) %> getDefault<%- camelize(property.name) %>();
     <%- propertyValueType(property) %> get<%- camelize(property.name) %>() const;

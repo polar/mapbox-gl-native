@@ -14,6 +14,11 @@ Style::Style(Scheduler& scheduler, FileSource& fileSource, float pixelRatio)
 
 Style::~Style() = default;
 
+Style::Style(const Style& other)
+    : impl(std::make_unique<Impl>(*other.impl)) {
+
+}
+
 void Style::loadJSON(const std::string& json) {
     impl->loadJSON(json);
 }

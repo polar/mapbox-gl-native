@@ -17,6 +17,12 @@ public:
     Light();
     ~Light();
 
+    Light(const Light&) = default;
+    Light& operator=(const Light&) = default;
+
+    Light(Light&&) = default;
+    Light& operator=(Light&&) = default;
+
     static LightAnchorType getDefaultAnchor();
     PropertyValue<LightAnchorType> getAnchor() const;
     void setAnchor(PropertyValue<LightAnchorType>);

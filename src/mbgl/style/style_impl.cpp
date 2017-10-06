@@ -25,8 +25,9 @@ namespace style {
 
 static Observer nullObserver;
 
-Style::Impl::Impl(Scheduler& scheduler_, FileSource& fileSource_, float pixelRatio)
-    : scheduler(scheduler_),
+Style::Impl::Impl(Scheduler& scheduler_, FileSource& fileSource_, float pixelRatio_)
+    : pixelRatio(pixelRatio_),
+      scheduler(scheduler_),
       fileSource(fileSource_),
       spriteLoader(std::make_unique<SpriteLoader>(pixelRatio)),
       light(std::make_unique<Light>()),
@@ -36,6 +37,17 @@ Style::Impl::Impl(Scheduler& scheduler_, FileSource& fileSource_, float pixelRat
 }
 
 Style::Impl::~Impl() = default;
+
+Style::Impl::Impl(const Style::Impl& other)
+    : pixelRatio(other.pixelRatio)
+    , scheduler(other.scheduler)
+    , fileSource(other.fileSource)
+    , spriteLoader(std::make_unique<SpriteLoader>(pixelRatio))
+    , light(std::make_unique<Light>(*other.light))
+    , observer(&nullObserver) {
+    spriteLoader->setObserver(this);
+    light->setObserver(this);
+}
 
 void Style::Impl::loadJSON(const std::string& json_) {
     lastError = nullptr;
