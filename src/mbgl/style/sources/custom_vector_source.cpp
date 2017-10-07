@@ -1,6 +1,7 @@
 #include <mbgl/style/sources/custom_vector_source.hpp>
 #include <mbgl/style/sources/custom_vector_source_impl.hpp>
 #include <mbgl/actor/scheduler.hpp>
+#include <mbgl/tile/tile_id.hpp>
 
 #include <tuple>
 #include <map>
@@ -66,7 +67,7 @@ public:
     void setTileData(const CanonicalTileID& tileID, const mapbox::geojson::geojson& data) {
         auto iter = tileCallbackMap.find(tileID);
         if (iter == tileCallbackMap.end()) return;
-        dataCache[tileID] = std::make_unique<mapbox::geojson::geojson>(data);
+        dataCache[tileID] = std::make_unique<mapbox::geojson::geojson>(std::move(data));
         for(auto tuple : iter->second) {
             auto actor = std::get<2>(tuple);
             actor.invoke(&SetTileDataFunction::operator(), data);
@@ -80,7 +81,7 @@ private:
     std::map<CanonicalTileID, std::unique_ptr<mapbox::geojson::geojson>> dataCache;
 };
 
-CustomTileLoader::CustomTileLoader(TileFunction&& fetchTileFn, TileFunction&& cancelTileFn)
+CustomTileLoader::CustomTileLoader(TileFunction fetchTileFn, TileFunction cancelTileFn)
     : impl(new CustomTileLoader::Impl(std::move(fetchTileFn), std::move(cancelTileFn))) {
 
 }
@@ -107,12 +108,10 @@ void CustomTileLoader::removeTile(const OverscaledTileID& tileID) {
 }
 
 CustomVectorSource::CustomVectorSource(std::string id,
-                                       const GeoJSONOptions options,
-                                       TileFunction fetchTileFn,
-                                       TileFunction cancelTileFn)
+                                       const CustomVectorSource::Options options)
     : Source(makeMutable<CustomVectorSource::Impl>(std::move(id), options)),
     mailbox(std::make_shared<Mailbox>(*Scheduler::GetCurrent())),
-    loader(std::move(fetchTileFn), std::move(cancelTileFn)) {
+    loader(options.fetchTileFunction, options.cancelTileFunction) {
 }
 
 const CustomVectorSource::Impl& CustomVectorSource::impl() const {

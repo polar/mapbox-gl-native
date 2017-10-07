@@ -10,12 +10,11 @@
 #include <mapbox/geojsonvt.hpp>
 
 namespace mbgl {
-namespace style {
 
 CustomTile::CustomTile(const OverscaledTileID& overscaledTileID,
                          std::string sourceID_,
                          const TileParameters& parameters,
-                         const style::GeoJSONOptions options_,
+                         const style::CustomVectorSource::TileOptions options_,
                          ActorRef<style::CustomTileLoader> loader_)
     : GeometryTile(overscaledTileID, sourceID_, parameters),
     necessity(Resource::Optional),
@@ -34,13 +33,11 @@ void CustomTile::setTileData(const mapbox::geojson::geojson& geoJSON) {
     if (geoJSON.is<FeatureCollection>() && !geoJSON.get<FeatureCollection>().empty()) {
         const double scale = util::EXTENT / options.tileSize;
 
-        mapbox::geojsonvt::Options vtOptions;
-        vtOptions.maxZoom = options.maxzoom;
+        mapbox::geojsonvt::TileOptions vtOptions;
         vtOptions.extent = util::EXTENT;
         vtOptions.buffer = std::round(scale * options.buffer);
         vtOptions.tolerance = scale * options.tolerance;
-        auto geojsonVt = std::make_unique<mapbox::geojsonvt::GeoJSONVT>(geoJSON, vtOptions);
-        featureData = geojsonVt->getTile(id.canonical.z, id.canonical.x, id.canonical.y).features;
+        featureData = mapbox::geojsonvt::geoJSONToTile(geoJSON, id.canonical.z, id.canonical.x, id.canonical.y, vtOptions).features;
     }
     setData(std::make_unique<GeoJSONTileData>(std::move(featureData)));
 }
@@ -78,5 +75,4 @@ void CustomTile::querySourceFeatures(
     }
 }
 
-} // namespace style
 } // namespace mbgl

@@ -1,25 +1,24 @@
 #pragma once
 
 #include <mbgl/style/source.hpp>
-#include <mbgl/style/sources/geojson_source.hpp>
-#include <mbgl/util/geo.hpp>
 #include <mbgl/util/geojson.hpp>
+#include <mbgl/util/range.hpp>
+#include <mbgl/util/constants.hpp>
 #include <mbgl/actor/actor_ref.hpp>
 
 namespace mbgl {
 
 class OverscaledTileID;
+class CanonicalTileID;
 
 namespace style {
-
-struct Error { std::string message; };
 
 using SetTileDataFunction = std::function<void(const mapbox::geojson::geojson&)>;
 using TileFunction = std::function<void(const CanonicalTileID&)>;
 
 class CustomTileLoader : private util::noncopyable {
 public:
-    CustomTileLoader(TileFunction&& fetchTileFn, TileFunction&& cancelTileFn);
+    CustomTileLoader(TileFunction fetchTileFn, TileFunction cancelTileFn);
     ~CustomTileLoader();
 
     void fetchTile(const OverscaledTileID& tileID, ActorRef<SetTileDataFunction> callbackRef);
@@ -35,13 +34,23 @@ private:
 
 class CustomVectorSource : public Source {
 public:
-    CustomVectorSource(std::string id,
-                       GeoJSONOptions options,
-                       TileFunction fetchTile,
-                       TileFunction cancelTile);
+    struct TileOptions {
+        double tolerance = 0.375;
+        uint16_t tileSize = util::tileSize;
+        uint16_t buffer = 128;
+    };
+
+    struct Options {
+        TileFunction fetchTileFunction;
+        TileFunction cancelTileFunction;
+        Range<uint8_t> zoomRange = { 0, 18};
+        TileOptions tileOptions;
+    };
+public:
+    CustomVectorSource(std::string id, CustomVectorSource::Options options);
 
     void loadDescription(FileSource&) final;
-    void setTileData(const CanonicalTileID&, const mapbox::geojson::geojson& geojson);
+    void setTileData(const CanonicalTileID&, const mapbox::geojson::geojson&);
 
     // Private implementation
     class Impl;

@@ -33,21 +33,19 @@ void RenderCustomVectorSource::update(Immutable<style::Source::Impl> baseImpl_,
     enabled = needsRendering;
 
     auto tileLoader = impl().getTileLoader();
-    
     if (!tileLoader) {
         return;
     }
 
-    const GeoJSONOptions options = impl().getOptions();
     tilePyramid.update(layers,
                        needsRendering,
                        needsRelayout,
                        parameters,
                        SourceType::CustomVector,
                        util::tileSize,
-                       { options.minzoom, options.maxzoom },
+                       impl().getZoomRange(),
                        [&] (const OverscaledTileID& tileID) {
-                           return std::make_unique<CustomTile>(tileID, impl().id, parameters, impl().getOptions(), *tileLoader);
+                           return std::make_unique<CustomTile>(tileID, impl().id, parameters, impl().getTileOptions(), *tileLoader);
                        });
 }
 
