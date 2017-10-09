@@ -3,6 +3,7 @@
 #include <mbgl/util/image.hpp>
 #include <mbgl/util/thread.hpp>
 #include <mbgl/util/optional.hpp>
+#include <mbgl/util/geo.hpp>
 
 #include <exception>
 #include <memory>
@@ -49,7 +50,8 @@ public:
     void setRegion(const LatLngBounds&);
     LatLngBounds getRegion() const;
 
-    using Callback = std::function<void (std::exception_ptr, PremultipliedImage)>;
+    using PointForFn = std::function<ScreenCoordinate (const LatLng&)>;
+    using Callback = std::function<void (std::exception_ptr, PremultipliedImage, PointForFn)>;
     void snapshot(ActorRef<Callback>);
 
 private:
