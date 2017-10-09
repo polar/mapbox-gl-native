@@ -16,6 +16,7 @@
 #include <mbgl/storage/file_source.hpp>
 #include <mbgl/geometry/feature_index.hpp>
 #include <mbgl/text/collision_tile.hpp>
+#include <mbgl/text/place_symbols.hpp>
 #include <mbgl/map/transform_state.hpp>
 #include <mbgl/style/filter_evaluator.hpp>
 #include <mbgl/util/logging.hpp>
@@ -152,6 +153,7 @@ void GeometryTile::onPlacement(PlacementResult result, const uint64_t resultCorr
         pending = false;
     }
     symbolBuckets = std::move(result.symbolBuckets);
+    symbolLayouts = std::move(result.symbolLayouts);
     collisionTile = std::move(result.collisionTile);
     if (result.glyphAtlasImage) {
         glyphAtlasImage = std::move(*result.glyphAtlasImage);
@@ -298,6 +300,32 @@ float GeometryTile::yStretch() const {
     // until a new placement result comes along, so keep the yStretch value in
     // case we need to render them.
     return lastYStretch;
+}
+
+void GeometryTile::commitPlacement(const CollisionIndex&, CollisionFadeTimes& collisionFadeTimes) {
+    for (auto& symbolLayout : symbolLayouts) {
+        auto bucket = symbolBuckets.find(symbolLayout->bucketName);
+        if (bucket != symbolBuckets.end()) {
+             assert(dynamic_cast<SymbolBucket*>(&*bucket->second));
+             SymbolBucket& symbolBucket = *reinterpret_cast<SymbolBucket*>(&*bucket->second);
+             updateOpacities(symbolBucket, *symbolLayout, collisionFadeTimes);
+        }
+    }
+	// Start all collision animations at the same time
+	//for (auto& symbolBucket : symbolBuckets) {
+        //updateOpacities(*symbolBucket.second, collisionFadeTimes);
+        // TODO
+        //bucket.sortFeatures(angle);
+	//}
+
+    // TODO
+	// Don't update the collision index used for queryRenderedFeatures
+	// until all layers have been updated to the same state
+    /*
+	if (this.featureIndex) {
+		this.featureIndex.setCollisionIndex(collisionIndex);
+	}
+    */
 }
 
 } // namespace mbgl

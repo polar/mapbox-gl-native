@@ -58,6 +58,8 @@ public:
     bool isDuplicate;
     OpacityState iconOpacityState;
     OpacityState textOpacityState;
+    bool placedText;
+    bool placedIcon;
 };
 
 } // namespace mbgl

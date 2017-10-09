@@ -10,6 +10,7 @@
 #include <mbgl/util/throttler.hpp>
 #include <mbgl/actor/actor.hpp>
 #include <mbgl/geometry/feature_index.hpp>
+#include <mbgl/layout/symbol_layout.hpp>
 
 #include <atomic>
 #include <memory>
@@ -38,6 +39,8 @@ public:
 
     void setPlacementConfig(const PlacementConfig&) override;
     void setLayers(const std::vector<Immutable<style::Layer::Impl>>&) override;
+
+    void commitPlacement(const CollisionIndex&, CollisionFadeTimes&) override;
     
     void onGlyphsAvailable(GlyphMap) override;
     void onImagesAvailable(ImageMap, uint64_t imageCorrelationID) override;
@@ -82,15 +85,18 @@ public:
     class PlacementResult {
     public:
         std::unordered_map<std::string, std::shared_ptr<Bucket>> symbolBuckets;
+        std::vector<std::unique_ptr<SymbolLayout>> symbolLayouts;
         std::unique_ptr<CollisionTile> collisionTile;
         optional<AlphaImage> glyphAtlasImage;
         optional<PremultipliedImage> iconAtlasImage;
 
         PlacementResult(std::unordered_map<std::string, std::shared_ptr<Bucket>> symbolBuckets_,
+                        std::vector<std::unique_ptr<SymbolLayout>> symbolLayouts_,
                         std::unique_ptr<CollisionTile> collisionTile_,
                         optional<AlphaImage> glyphAtlasImage_,
                         optional<PremultipliedImage> iconAtlasImage_)
             : symbolBuckets(std::move(symbolBuckets_)),
+              symbolLayouts(std::move(symbolLayouts_)),
               collisionTile(std::move(collisionTile_)),
               glyphAtlasImage(std::move(glyphAtlasImage_)),
               iconAtlasImage(std::move(iconAtlasImage_)) {}
@@ -132,6 +138,7 @@ private:
     optional<PremultipliedImage> iconAtlasImage;
 
     std::unordered_map<std::string, std::shared_ptr<Bucket>> symbolBuckets;
+    std::vector<std::unique_ptr<SymbolLayout>> symbolLayouts;
     std::unique_ptr<CollisionTile> collisionTile;
 
     float lastYStretch;

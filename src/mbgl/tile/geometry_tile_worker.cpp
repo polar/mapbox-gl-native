@@ -123,12 +123,12 @@ void GeometryTileWorker::setPlacementConfig(PlacementConfig placementConfig_, ui
 
         switch (state) {
         case Idle:
-            attemptPlacement();
+            //attemptPlacement();
             coalesce();
             break;
 
         case Coalescing:
-            state = NeedPlacement;
+            //state = NeedPlacement;
             break;
 
         case NeedPlacement:
@@ -418,6 +418,7 @@ void GeometryTileWorker::attemptPlacement() {
 
     parent.invoke(&GeometryTile::onPlacement, GeometryTile::PlacementResult {
         std::move(buckets),
+        std::move(symbolLayouts),
         std::move(collisionTile),
         std::move(glyphAtlasImage),
         std::move(iconAtlasImage),
