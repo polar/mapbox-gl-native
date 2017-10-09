@@ -2,6 +2,7 @@
 
 #include <mbgl/style/source_impl.hpp>
 #include <mbgl/style/sources/custom_vector_source.hpp>
+#include <mbgl/style/custom_tile_loader.hpp>
 #include <mbgl/actor/actor_ref.hpp>
 
 namespace mbgl {

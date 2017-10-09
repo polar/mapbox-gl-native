@@ -4,7 +4,7 @@
 #include <mbgl/util/geojson.hpp>
 #include <mbgl/util/range.hpp>
 #include <mbgl/util/constants.hpp>
-#include <mbgl/actor/actor_ref.hpp>
+#include <mbgl/actor/mailbox.hpp>
 
 namespace mbgl {
 
@@ -13,24 +13,8 @@ class CanonicalTileID;
 
 namespace style {
 
-using SetTileDataFunction = std::function<void(const mapbox::geojson::geojson&)>;
 using TileFunction = std::function<void(const CanonicalTileID&)>;
-
-class CustomTileLoader : private util::noncopyable {
-public:
-    CustomTileLoader(TileFunction fetchTileFn, TileFunction cancelTileFn);
-    ~CustomTileLoader();
-
-    void fetchTile(const OverscaledTileID& tileID, ActorRef<SetTileDataFunction> callbackRef);
-    void cancelTile(const OverscaledTileID& tileID);
-    void removeTile(const OverscaledTileID& tileID);
-
-    void setTileData(const CanonicalTileID& tileID, const mapbox::geojson::geojson& data);
-
-private:
-    class Impl;
-    Impl* impl = nullptr;
-};
+class CustomTileLoader;
 
 class CustomVectorSource : public Source {
 public:
@@ -48,7 +32,7 @@ public:
     };
 public:
     CustomVectorSource(std::string id, CustomVectorSource::Options options);
-
+    ~CustomVectorSource() final;
     void loadDescription(FileSource&) final;
     void setTileData(const CanonicalTileID&, const mapbox::geojson::geojson&);
 
@@ -56,8 +40,8 @@ public:
     class Impl;
     const Impl& impl() const;
 private:
-    std::shared_ptr<Mailbox> mailbox;
-    CustomTileLoader loader;
+    std::shared_ptr<Mailbox> mailbox;    
+    std::unique_ptr<CustomTileLoader> loader;
 
 };
 

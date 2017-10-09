@@ -3,7 +3,7 @@
 #include <mbgl/tile/geometry_tile.hpp>
 #include <mbgl/util/feature.hpp>
 #include <mbgl/style/sources/custom_vector_source.hpp>
-#include <mbgl/style/sources/geojson_source.hpp>
+#include <mbgl/style/custom_tile_loader.hpp>
 
 namespace mbgl {
 
