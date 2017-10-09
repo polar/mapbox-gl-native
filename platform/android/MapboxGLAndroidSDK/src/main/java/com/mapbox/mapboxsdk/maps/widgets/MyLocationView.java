@@ -557,6 +557,7 @@ public class MyLocationView extends View {
       locationEngine.removeLocationEngineListener(userLocationListener);
       locationEngine.removeLocationUpdates();
       locationEngine.deactivate();
+      restoreLocationEngine();
     }
   }
 
@@ -769,6 +770,11 @@ public class MyLocationView extends View {
     if (drawable != null) {
       drawable.mutate().setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
+  }
+
+  private void restoreLocationEngine() {
+    locationEngine.setPriority(LocationEnginePriority.LOW_POWER);
+    locationEngine.activate();
   }
 
   private static class GpsLocationListener implements LocationEngineListener {
