@@ -14,6 +14,7 @@ class CanonicalTileID;
 namespace style {
 
 using TileFunction = std::function<void(const CanonicalTileID&)>;
+
 class CustomTileLoader;
 
 class CustomVectorSource : public Source {
@@ -34,7 +35,7 @@ public:
     CustomVectorSource(std::string id, CustomVectorSource::Options options);
     ~CustomVectorSource() final;
     void loadDescription(FileSource&) final;
-    void setTileData(const CanonicalTileID&, const mapbox::geojson::geojson&);
+    void setTileData(const CanonicalTileID&, const GeoJSON&);
 
     // Private implementation
     class Impl;
@@ -42,7 +43,6 @@ public:
 private:
     std::shared_ptr<Mailbox> mailbox;    
     std::unique_ptr<CustomTileLoader> loader;
-
 };
 
 template <>

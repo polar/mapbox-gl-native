@@ -22,13 +22,14 @@ CustomVectorSource::~CustomVectorSource() = default;
 const CustomVectorSource::Impl& CustomVectorSource::impl() const {
     return static_cast<const CustomVectorSource::Impl&>(*baseImpl);
 }
+
 void CustomVectorSource::loadDescription(FileSource&) {
     baseImpl = makeMutable<CustomVectorSource::Impl>(impl(), ActorRef<CustomTileLoader>(*loader, mailbox));
     loaded = true;
 }
 
 void CustomVectorSource::setTileData(const CanonicalTileID& tileID,
-                                     const mapbox::geojson::geojson& data) {
+                                     const GeoJSON& data) {
     loader->setTileData(tileID, data);
 }
 

@@ -53,7 +53,7 @@ void CustomTileLoader::removeTile(const OverscaledTileID& tileID) {
     
 }
 
-void CustomTileLoader::setTileData(const CanonicalTileID& tileID, const mapbox::geojson::geojson& data) {
+void CustomTileLoader::setTileData(const CanonicalTileID& tileID, const GeoJSON& data) {
     auto iter = tileCallbackMap.find(tileID);
     if (iter == tileCallbackMap.end()) return;
     dataCache[tileID] = std::make_unique<mapbox::geojson::geojson>(std::move(data));

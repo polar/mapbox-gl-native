@@ -3,7 +3,6 @@
 #include <mbgl/renderer/render_source.hpp>
 #include <mbgl/renderer/tile_pyramid.hpp>
 #include <mbgl/style/sources/custom_vector_source_impl.hpp>
-#include <mbgl/actor/actor.hpp>
 
 namespace mbgl {
 

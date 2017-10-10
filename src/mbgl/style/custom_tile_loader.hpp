@@ -1,17 +1,16 @@
 #pragma once
 
 #include <mbgl/style/sources/custom_vector_source.hpp>
-#include <mbgl/actor/scheduler.hpp>
 #include <mbgl/tile/tile_id.hpp>
+#include <mbgl/util/geojson.hpp>
 #include <mbgl/actor/actor_ref.hpp>
 
-#include <tuple>
 #include <map>
 
 namespace mbgl {
 namespace style {
 
-using SetTileDataFunction = std::function<void(const mapbox::geojson::geojson&)>;
+using SetTileDataFunction = std::function<void(const GeoJSON&)>;
 
 class CustomTileLoader : private util::noncopyable {
 public:
@@ -24,13 +23,13 @@ public:
     void cancelTile(const OverscaledTileID& tileID);
 
     void removeTile(const OverscaledTileID& tileID);
-    void setTileData(const CanonicalTileID& tileID, const mapbox::geojson::geojson& data);
+    void setTileData(const CanonicalTileID& tileID, const GeoJSON& data);
 
 private:
     TileFunction fetchTileFunction;
     TileFunction cancelTileFunction;
     std::unordered_map<CanonicalTileID, std::vector<OverscaledIDFunctionTuple>> tileCallbackMap;
-    std::map<CanonicalTileID, std::unique_ptr<mapbox::geojson::geojson>> dataCache;
+    std::map<CanonicalTileID, std::unique_ptr<GeoJSON>> dataCache;
 };
 
 } // namespace style

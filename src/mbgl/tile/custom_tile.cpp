@@ -1,10 +1,7 @@
 #include <mbgl/tile/custom_tile.hpp>
 #include <mbgl/tile/geojson_tile_data.hpp>
-#include <mbgl/tile/geometry_tile_data.hpp>
 #include <mbgl/renderer/query.hpp>
 #include <mbgl/renderer/tile_parameters.hpp>
-#include <mbgl/style/filter_evaluator.hpp>
-#include <mbgl/util/logging.hpp>
 #include <mbgl/actor/scheduler.hpp>
 
 #include <mapbox/geojsonvt.hpp>
@@ -27,7 +24,7 @@ CustomTile::~CustomTile() {
     loader.invoke(&style::CustomTileLoader::removeTile, id);
 }
 
-void CustomTile::setTileData(const mapbox::geojson::geojson& geoJSON) {
+void CustomTile::setTileData(const GeoJSON& geoJSON) {
 
     auto featureData = mapbox::geometry::feature_collection<int16_t>();
     if (geoJSON.is<FeatureCollection>() && !geoJSON.get<FeatureCollection>().empty()) {

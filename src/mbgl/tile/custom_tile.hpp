@@ -2,7 +2,6 @@
 
 #include <mbgl/tile/geometry_tile.hpp>
 #include <mbgl/util/feature.hpp>
-#include <mbgl/style/sources/custom_vector_source.hpp>
 #include <mbgl/style/custom_tile_loader.hpp>
 
 namespace mbgl {
@@ -17,7 +16,7 @@ public:
                const style::CustomVectorSource::TileOptions,
                ActorRef<style::CustomTileLoader> loader);
     ~CustomTile() override;
-    void setTileData(const mapbox::geojson::geojson& data);
+    void setTileData(const GeoJSON& data);
 
     void setNecessity(Necessity) final;
 
