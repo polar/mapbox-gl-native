@@ -9,7 +9,6 @@
 #include <mbgl/map/map.hpp>
 #include <mbgl/style/sources/custom_vector_source.hpp>
 #include <mbgl/tile/tile_id.hpp>
-#include <mbgl/util/geo.hpp>
 #include <mbgl/util/geojson.hpp>
 
 @interface MGLComputedShapeSource () {
@@ -100,22 +99,22 @@
     self.requestQueue.name = [NSString stringWithFormat:@"mgl.MGLComputedShapeSource.%@", identifier];
     self.requestQueue.qualityOfService = NSQualityOfServiceUtility;
     self.requestQueue.maxConcurrentOperationCount = 4;
-    auto geoJSONOptions = MGLGeoJSONOptionsFromDictionary(options);
-    auto source = std::make_unique<mbgl::style::CustomVectorSource>
-    (identifier.UTF8String, geoJSONOptions,
-     ^void(const mbgl::CanonicalTileID& tileID)
-     {
-         NSOperation *operation = [[MGLComputedShapeSourceFetchOperation alloc] initForSource:self tile:tileID];
-         [self.requestQueue addOperation:operation];
-     },
-     ^void(const mbgl::CanonicalTileID& tileID)
-     {
-         for(MGLComputedShapeSourceFetchOperation *operation in [self.requestQueue operations]) {
+
+    auto sourceOptions  = MBGLCustomVectorSourceOptionsFromDictionary(options);
+    sourceOptions.fetchTileFunction = ^void(const mbgl::CanonicalTileID& tileID) {
+        NSOperation *operation = [[MGLComputedShapeSourceFetchOperation alloc] initForSource:self tile:tileID];
+        [self.requestQueue addOperation:operation];
+    };
+    
+    sourceOptions.cancelTileFunction = ^void(const mbgl::CanonicalTileID& tileID) {
+        for(MGLComputedShapeSourceFetchOperation *operation in [self.requestQueue operations]) {
             if(operation.x == tileID.x && operation.y == tileID.y && operation.z == tileID.z) {
                 [operation cancel];
             }
-         }
-     });
+        }
+    };
+
+    auto source = std::make_unique<mbgl::style::CustomVectorSource>(identifier.UTF8String, sourceOptions);
     return self = [super initWithPendingSource:std::move(source)];
 }
 

@@ -37,6 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  A source for vector data that is fetched one tile at a time. Useful for sources that are
  too large to fit in memory, or are already divided into tiles, but not in Mapbox Vector Tile format.
+ 
+ Supported options are `MGLShapeSourceOptionMinimumZoomLevel`, `MGLShapeSourceOptionMaximumZoomLevel`,
+  `MGLShapeSourceOptionBuffer`, and `MGLShapeSourceOptionSimplificationTolerance.` This source does
+  not support clustering.
  */
 MGL_EXPORT
 @interface MGLComputedShapeSource : MGLAbstractShapeSource
