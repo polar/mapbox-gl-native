@@ -3,6 +3,7 @@
 #include <mbgl/renderer/query.hpp>
 #include <mbgl/renderer/tile_parameters.hpp>
 #include <mbgl/actor/scheduler.hpp>
+#include <mbgl/style/filter_evaluator.hpp>
 
 #include <mapbox/geojsonvt.hpp>
 

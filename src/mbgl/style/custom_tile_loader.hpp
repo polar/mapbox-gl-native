@@ -26,6 +26,9 @@ public:
     void setTileData(const CanonicalTileID& tileID, const GeoJSON& data);
 
 private:
+    void invokeTileFetch(const CanonicalTileID& tileID);
+    void invokeTileCancel(const CanonicalTileID& tileID);
+    
     TileFunction fetchTileFunction;
     TileFunction cancelTileFunction;
     std::unordered_map<CanonicalTileID, std::vector<OverscaledIDFunctionTuple>> tileCallbackMap;

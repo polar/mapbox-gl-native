@@ -11,7 +11,7 @@ CustomTileLoader::CustomTileLoader(const TileFunction& fetchTileFn, const TileFu
 void CustomTileLoader::fetchTile(const OverscaledTileID& tileID, ActorRef<SetTileDataFunction> callbackRef) {
     auto cachedTileData = dataCache.find(tileID.canonical);
     if (cachedTileData == dataCache.end()) {
-        fetchTileFunction(tileID.canonical);
+        invokeTileFetch(tileID.canonical);
     } else {
         callbackRef.invoke(&SetTileDataFunction::operator(), *(cachedTileData->second));
     }
@@ -33,7 +33,7 @@ void CustomTileLoader::fetchTile(const OverscaledTileID& tileID, ActorRef<SetTil
 
 void CustomTileLoader::cancelTile(const OverscaledTileID& tileID) {
     if(tileCallbackMap.find(tileID.canonical) != tileCallbackMap.end()) {
-        cancelTileFunction(tileID.canonical);
+        invokeTileCancel(tileID.canonical);
     }
 }
 
@@ -50,7 +50,6 @@ void CustomTileLoader::removeTile(const OverscaledTileID& tileID) {
         tileCallbackMap.erase(tileCallbacks);
         dataCache.erase(tileID.canonical);
     }
-    
 }
 
 void CustomTileLoader::setTileData(const CanonicalTileID& tileID, const GeoJSON& data) {
@@ -60,6 +59,18 @@ void CustomTileLoader::setTileData(const CanonicalTileID& tileID, const GeoJSON&
     for(auto tuple : iter->second) {
         auto actor = std::get<2>(tuple);
         actor.invoke(&SetTileDataFunction::operator(), data);
+    }
+}
+
+void CustomTileLoader::invokeTileFetch(const CanonicalTileID& tileID) {
+    if (fetchTileFunction != nullptr) {
+        fetchTileFunction(tileID);
+    }
+}
+
+void CustomTileLoader::invokeTileCancel(const CanonicalTileID& tileID) {
+    if (cancelTileFunction != nullptr) {
+        cancelTileFunction(tileID);
     }
 }
 
