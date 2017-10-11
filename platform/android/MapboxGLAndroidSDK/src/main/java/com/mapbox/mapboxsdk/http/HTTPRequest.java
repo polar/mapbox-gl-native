@@ -26,12 +26,13 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.internal.Util;
 import timber.log.Timber;
 
 class HTTPRequest implements Callback {
 
-  private static OkHttpClient mClient = new OkHttpClient();
+  private OkHttpClient mClient;
   private String USER_AGENT_STRING = null;
 
   private static final int CONNECTION_ERROR = 0;
@@ -54,7 +55,7 @@ class HTTPRequest implements Callback {
 
   private HTTPRequest(long nativePtr, String resourceUrl, String etag, String modified) {
     mNativePtr = nativePtr;
-
+    mClient = new OkHttpClient();
     try {
       HttpUrl httpUrl = HttpUrl.parse(resourceUrl);
       final String host = httpUrl.host().toLowerCase(MapboxConstants.MAPBOX_LOCALE);
@@ -117,29 +118,34 @@ class HTTPRequest implements Callback {
       Timber.d("[HTTP] Request with response code = %s: %s", response.code(), message);
     }
 
+    ResponseBody responseBody = response.body();
+    if (responseBody == null) {
+      return;
+    }
+
     byte[] body;
     try {
-      body = response.body().bytes();
+      body = responseBody.bytes();
+
+      mLock.lock();
+      if (mNativePtr != 0) {
+        nativeOnResponse(response.code(),
+          response.header("ETag"),
+          response.header("Last-Modified"),
+          response.header("Cache-Control"),
+          response.header("Expires"),
+          response.header("Retry-After"),
+          response.header("x-rate-limit-reset"),
+          body);
+      }
+      mLock.unlock();
+
     } catch (IOException ioException) {
       onFailure(ioException);
       // throw ioException;
-      return;
     } finally {
-      response.body().close();
+      responseBody.close();
     }
-
-    mLock.lock();
-    if (mNativePtr != 0) {
-      nativeOnResponse(response.code(),
-        response.header("ETag"),
-        response.header("Last-Modified"),
-        response.header("Cache-Control"),
-        response.header("Expires"),
-        response.header("Retry-After"),
-        response.header("x-rate-limit-reset"),
-        body);
-    }
-    mLock.unlock();
   }
 
   @Override
