@@ -6,7 +6,7 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
-Value makeValue(const id);
+Value makeValue(const id value);
 
 } // namespace conversion
 } // namespace style

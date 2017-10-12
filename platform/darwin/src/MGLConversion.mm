@@ -14,41 +14,25 @@ public:
     const id value;
 };
 
-static Holder& cast(Storage& storage) {
-    return *static_cast<Holder*>(static_cast<void*>(&storage));
-}
+using MGLValue = Holder;
 
-static const Holder& cast(const Storage& storage) {
-    return *static_cast<const Holder*>(static_cast<const void*>(&storage));
-}
-
-static void destroy(Storage& storage) {
-    Holder& value = cast(storage);
-    value.~Holder();
-}
-
-static void move(Storage&& src, Storage& dest) {
-    new (static_cast<void*>(&dest)) Holder(std::move(cast(src)));
-    destroy(src);
-}
-
-static bool isUndefined(const Storage& storage) {
-    const id value = cast(storage).value;
+template<> bool ValueTraits<MGLValue>::isUndefined(const MGLValue& holder) {
+    const id value = holder.value;
     return !value || value == [NSNull null];
 }
 
-static bool isArray(const Storage& storage) {
-    const id value = cast(storage).value;
+template<> bool ValueTraits<MGLValue>::isArray(const MGLValue& holder) {
+    const id value = holder.value;
     return [value isKindOfClass:[NSArray class]];
 }
 
-static bool isObject(const Storage& storage) {
-    const id value = cast(storage).value;
+template<> bool ValueTraits<MGLValue>::isObject(const MGLValue& holder) {
+    const id value = holder.value;
     return [value isKindOfClass:[NSDictionary class]];
 }
 
-static std::size_t arrayLength(const Storage& storage) {
-    const id value = cast(storage).value;
+template<> std::size_t ValueTraits<MGLValue>::arrayLength(const MGLValue& holder) {
+    const id value = holder.value;
     NSCAssert([value isKindOfClass:[NSArray class]], @"Value must be an NSArray for getLength().");
     NSArray *array = value;
     auto length = [array count];
@@ -56,25 +40,25 @@ static std::size_t arrayLength(const Storage& storage) {
     return length;
 }
 
-static Value arrayMember(const Storage& storage, std::size_t i) {
-    const id value = cast(storage).value;
+template<> MGLValue ValueTraits<MGLValue>::arrayMember(const MGLValue& holder, std::size_t i) {
+    const id value = holder.value;
     NSCAssert([value isKindOfClass:[NSArray class]], @"Value must be an NSArray for get(int).");
     NSCAssert(i < NSUIntegerMax, @"Index must be less than NSUIntegerMax");
-    return makeValue([value objectAtIndex: i]);
+    return {[value objectAtIndex: i]};
 }
 
-static optional<Value> objectMember(const Storage& storage, const char *key) {
-    const id value = cast(storage).value;
+template<> optional<MGLValue> ValueTraits<MGLValue>::objectMember(const MGLValue& holder, const char *key) {
+    const id value = holder.value;
     NSCAssert([value isKindOfClass:[NSDictionary class]], @"Value must be an NSDictionary for get(string).");
     NSObject *member = [value objectForKey: @(key)];
     if (member && member != [NSNull null]) {
-        return makeValue(member);
+        return {member};
     } else {
-        return optional<Value>();
+        return {};
     }
 }
 
-static optional<Error> eachMember(const Storage& storage, const std::function<optional<Error> (const std::string&, const Value&)>& fn) {
+template<> optional<Error> ValueTraits<MGLValue>::eachMember(const MGLValue& holder, const std::function<optional<Error> (const std::string&, const MGLValue&)>& fn) {
     // Not implemented (unneeded for MGLStyleFunction conversion).
     NSCAssert(NO, @"eachMember not implemented");
     return {};
@@ -97,8 +81,8 @@ inline bool _isString(const id value) {
     return [value isKindOfClass:[NSString class]];
 }
 
-static optional<bool> toBool(const Storage& storage) {
-    const id value = cast(storage).value;
+template<> optional<bool> ValueTraits<MGLValue>::toBool(const MGLValue& holder) {
+    const id value = holder.value;
     if (_isBool(value)) {
         return ((NSNumber *)value).boolValue;
     } else {
@@ -106,8 +90,8 @@ static optional<bool> toBool(const Storage& storage) {
     }
 }
 
-static optional<float> toNumber(const Storage& storage) {
-    const id value = cast(storage).value;
+template<> optional<float> ValueTraits<MGLValue>::toNumber(const MGLValue& holder) {
+    const id value = holder.value;
     if (_isNumber(value)) {
         return ((NSNumber *)value).floatValue;
     } else {
@@ -115,8 +99,8 @@ static optional<float> toNumber(const Storage& storage) {
     }
 }
 
-static optional<double> toDouble(const Storage& storage) {
-    const id value = cast(storage).value;
+template<> optional<double> ValueTraits<MGLValue>::toDouble(const MGLValue& holder) {
+    const id value = holder.value;
     if (_isNumber(value)) {
         return ((NSNumber *)value).doubleValue;
     } else {
@@ -124,8 +108,8 @@ static optional<double> toDouble(const Storage& storage) {
     }
 }
 
-static optional<std::string> toString(const Storage& storage) {
-    const id value = cast(storage).value;
+template<> optional<std::string> ValueTraits<MGLValue>::toString(const MGLValue& holder) {
+    const id value = holder.value;
     if (_isString(value)) {
         return std::string(static_cast<const char *>([value UTF8String]));
     } else {
@@ -133,50 +117,31 @@ static optional<std::string> toString(const Storage& storage) {
     }
 }
 
-static optional<mbgl::Value> toValue(const Storage& storage) {
-    const id value = cast(storage).value;
-    if (isUndefined(storage)) {
+template<> optional<mbgl::Value> ValueTraits<MGLValue>::toValue(const MGLValue& holder) {
+    const id value = holder.value;
+    if (isUndefined(value)) {
         return {};
     } else if (_isBool(value)) {
-        return { *toBool(storage) };
+        return { *toBool(holder) };
     } else if ( _isString(value)) {
-        return { *toString(storage) };
+        return { *toString(holder) };
     } else if (_isNumber(value)) {
         // Need to cast to a double here as the float is otherwise considered a bool...
-       return { static_cast<double>(*toNumber(storage)) };
+       return { static_cast<double>(*toNumber(holder)) };
     } else {
         return {};
     }
 }
 
-static optional<GeoJSON> toGeoJSON(const Storage& storage, Error& error) {
+template<> optional<GeoJSON> ValueTraits<MGLValue>::toGeoJSON(const MGLValue& holder, Error& error) {
     error = { "toGeoJSON not implemented" };
     return {};
 }
 
 Value makeValue(const id value) {
-    static Value::VTable vtable = {
-        move,
-        destroy,
-        isUndefined,
-        isArray,
-        arrayLength,
-        arrayMember,
-        isObject,
-        objectMember,
-        eachMember,
-        toBool,
-        toNumber,
-        toDouble,
-        toString,
-        toValue,
-        toGeoJSON
-    };
-
-    Storage storage;
-    new (static_cast<void*>(&storage)) Holder(value);
-    return Value(&vtable, std::move(storage));
+    return {Holder(value)};
 }
+
 
 } // namespace conversion
 } // namespace style
