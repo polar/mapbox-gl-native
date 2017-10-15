@@ -37,7 +37,7 @@ static void Parse_SourceFunction(benchmark::State& state) {
         state.PauseTiming();
         auto doc = createFunctionJSON(stopCount);
         state.ResumeTiming();
-        optional<SourceFunction<float>> result = conversion::convert<SourceFunction<float>, JSValue>(doc, error);
+        optional<SourceFunction<float>> result = conversion::convert<SourceFunction<float>>(doc, error);
         if (!result) {
             state.SkipWithError(error.message.c_str());
         }
@@ -49,7 +49,7 @@ static void Evaluate_SourceFunction(benchmark::State& state) {
     size_t stopCount = state.range(0);
     auto doc = createFunctionJSON(stopCount);
     conversion::Error error;
-    optional<SourceFunction<float>> function = conversion::convert<SourceFunction<float>, JSValue>(doc, error);
+    optional<SourceFunction<float>> function = conversion::convert<SourceFunction<float>>(doc, error);
     if (!function) {
         state.SkipWithError(error.message.c_str());
     }

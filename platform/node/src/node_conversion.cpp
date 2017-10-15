@@ -21,14 +21,16 @@ template<> bool ValueTraits<V8Value>::isArray(const V8Value& value) {
 
 template<> std::size_t ValueTraits<V8Value>::arrayLength(const V8Value& value) {
     Nan::HandleScope scope;
-    
-    return value.As<v8::Array>()->Length();
+    // const_cast because v8::Local<T>::As is not marked const until node v8.0
+    v8::Local<v8::Array> array = const_cast<v8::Local<v8::Value>&>(value).As<v8::Array>();
+    return array->Length();
 }
 
 template<> V8Value ValueTraits<V8Value>::arrayMember(const V8Value& value, std::size_t i) {
     Nan::EscapableHandleScope scope;
-    
-    return scope.Escape(Nan::Get(value.As<v8::Array>(), i).ToLocalChecked());
+    // const_cast because v8::Local<T>::As is not marked const until node v8.0
+    v8::Local<v8::Array> array = const_cast<v8::Local<v8::Value>&>(value).As<v8::Array>();
+    return scope.Escape(Nan::Get(array, i).ToLocalChecked());
 }
 
 template<> bool ValueTraits<V8Value>::isObject(const V8Value& value) {

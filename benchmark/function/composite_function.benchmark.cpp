@@ -42,7 +42,7 @@ static void Parse_CompositeFunction(benchmark::State& state) {
         state.PauseTiming();
         auto doc = createFunctionJSON(stopCount);
         state.ResumeTiming();
-        optional<CompositeFunction<float>> result = conversion::convert<style::CompositeFunction<float>, JSValue>(doc, error);
+        optional<CompositeFunction<float>> result = conversion::convert<style::CompositeFunction<float>>(doc, error);
         if (!result) {
             state.SkipWithError(error.message.c_str());
         }
@@ -54,7 +54,7 @@ static void Evaluate_CompositeFunction(benchmark::State& state) {
     size_t stopCount = state.range(0);
     auto doc = createFunctionJSON(stopCount);
     conversion::Error error;
-    optional<CompositeFunction<float>> function = conversion::convert<CompositeFunction<float>, JSValue>(doc, error);
+    optional<CompositeFunction<float>> function = conversion::convert<CompositeFunction<float>>(doc, error);
     if (!function) {
         state.SkipWithError(error.message.c_str());
     }

@@ -15,7 +15,7 @@ style::Filter parse(const char* expression) {
     rapidjson::GenericDocument<rapidjson::UTF8<>, rapidjson::CrtAllocator> doc;
     doc.Parse<0>(expression);
     style::conversion::Error error;
-    return *style::conversion::convert<style::Filter, JSValue>(doc, error);
+    return *style::conversion::convert<style::Filter>(doc, error);
 }
 
 static void Parse_Filter(benchmark::State& state) {

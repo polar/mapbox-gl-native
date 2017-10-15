@@ -35,7 +35,7 @@ static void Parse_CameraFunction(benchmark::State& state) {
         state.PauseTiming();
         auto doc = createFunctionJSON(stopCount);
         state.ResumeTiming();
-        optional<CameraFunction<float>> result = conversion::convert<CameraFunction<float>, JSValue>(doc, error);
+        optional<CameraFunction<float>> result = conversion::convert<CameraFunction<float>>(doc, error);
         if (!result) {
             state.SkipWithError(error.message.c_str());
         }
@@ -47,7 +47,7 @@ static void Evaluate_CameraFunction(benchmark::State& state) {
     size_t stopCount = state.range(0);
     auto doc = createFunctionJSON(stopCount);
     conversion::Error error;
-    optional<CameraFunction<float>> function = conversion::convert<CameraFunction<float>, JSValue>(doc, error);
+    optional<CameraFunction<float>> function = conversion::convert<CameraFunction<float>>(doc, error);
     if (!function) {
         state.SkipWithError(error.message.c_str());
     }
