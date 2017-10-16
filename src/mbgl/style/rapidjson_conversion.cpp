@@ -7,37 +7,35 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
-using JSValuePointer = const JSValue*;
-
-template<> bool ValueTraits<JSValuePointer>::isUndefined(const JSValuePointer& value) {
+template<> bool ValueTraits<const JSValue*>::isUndefined(const JSValue* const& value) {
     return value->IsNull();
 }
 
-template<> bool ValueTraits<JSValuePointer>::isArray(const JSValuePointer& value) {
+template<> bool ValueTraits<const JSValue*>::isArray(const JSValue* const& value) {
     return value->IsArray();
 }
 
-template<> std::size_t ValueTraits<JSValuePointer>::arrayLength(const JSValuePointer& value) {
+template<> std::size_t ValueTraits<const JSValue*>::arrayLength(const JSValue* const& value) {
     return value->Size();
 }
 
-template<> JSValuePointer ValueTraits<JSValuePointer>::arrayMember(const JSValuePointer& value, std::size_t i) {
+template<> const JSValue* ValueTraits<const JSValue*>::arrayMember(const JSValue* const& value, std::size_t i) {
     return &(*value)[rapidjson::SizeType(i)];
 }
 
-template<> bool ValueTraits<JSValuePointer>::isObject(const JSValuePointer& value) {
+template<> bool ValueTraits<const JSValue*>::isObject(const JSValue* const& value) {
     return value->IsObject();
 }
 
-template<> optional<JSValuePointer> ValueTraits<JSValuePointer>::objectMember(const JSValuePointer& value, const char * name) {
+template<> optional<const JSValue*> ValueTraits<const JSValue*>::objectMember(const JSValue* const& value, const char * name) {
     if (!value->HasMember(name)) {
-        return optional<JSValuePointer>();
+        return optional<const JSValue*>();
     }
-    const JSValuePointer& member = &(*value)[name];
+    const JSValue* const& member = &(*value)[name];
     return {member};
 }
 
-template<> optional<Error> ValueTraits<JSValuePointer>::eachMember(const JSValuePointer& value, const std::function<optional<Error> (const std::string&, const JSValuePointer&)>& fn) {
+template<> optional<Error> ValueTraits<const JSValue*>::eachMember(const JSValue* const& value, const std::function<optional<Error> (const std::string&, const JSValue* const&)>& fn) {
     assert(value->IsObject());
     for (const auto& property : value->GetObject()) {
         optional<Error> result =
@@ -49,35 +47,35 @@ template<> optional<Error> ValueTraits<JSValuePointer>::eachMember(const JSValue
     return {};
 }
 
-template<> optional<bool> ValueTraits<JSValuePointer>::toBool(const JSValuePointer& value) {
+template<> optional<bool> ValueTraits<const JSValue*>::toBool(const JSValue* const& value) {
     if (!value->IsBool()) {
         return {};
     }
     return value->GetBool();
 }
 
-template<> optional<float> ValueTraits<JSValuePointer>::toNumber(const JSValuePointer& value) {
+template<> optional<float> ValueTraits<const JSValue*>::toNumber(const JSValue* const& value) {
     if (!value->IsNumber()) {
         return {};
     }
     return value->GetDouble();
 }
 
-template<> optional<double> ValueTraits<JSValuePointer>::toDouble(const JSValuePointer& value) {
+template<> optional<double> ValueTraits<const JSValue*>::toDouble(const JSValue* const& value) {
     if (!value->IsNumber()) {
         return {};
     }
     return value->GetDouble();
 }
 
-template<> optional<std::string> ValueTraits<JSValuePointer>::toString(const JSValuePointer& value) {
+template<> optional<std::string> ValueTraits<const JSValue*>::toString(const JSValue* const& value) {
     if (!value->IsString()) {
         return {};
     }
     return {{ value->GetString(), value->GetStringLength() }};
 }
 
-template<> optional<mbgl::Value> ValueTraits<JSValuePointer>::toValue(const JSValuePointer& value) {
+template<> optional<mbgl::Value> ValueTraits<const JSValue*>::toValue(const JSValue* const& value) {
     switch (value->GetType()) {
         case rapidjson::kNullType:
         case rapidjson::kFalseType:
@@ -99,7 +97,7 @@ template<> optional<mbgl::Value> ValueTraits<JSValuePointer>::toValue(const JSVa
     }
 }
 
-template<> optional<GeoJSON> ValueTraits<JSValuePointer>::toGeoJSON(const JSValuePointer& value, Error& error) {
+template<> optional<GeoJSON> ValueTraits<const JSValue*>::toGeoJSON(const JSValue* const& value, Error& error) {
     try {
         return mapbox::geojson::convert(*value);
     } catch (const std::exception& ex) {

@@ -32,40 +32,11 @@ namespace conversion {
 
 namespace detail {
 
-// Node:        JSValue* or v8::Local<v8::Value>
-// Android:     JSValue* or mbgl::android::Value
-// iOS/macOS:   JSValue* or id
-// Qt:          JSValue* or QVariant
-
-// TODO: use platform-specific size
-using Storage = std::aligned_storage_t<32, 8>;
 
 } // namespace detail
 
 
 struct Error { std::string message; };
-
-template <typename T>
-const T& cast(const detail::Storage& storage) {
-    return reinterpret_cast<const T&>(storage);
-}
-
-template <typename T>
-T& cast(detail::Storage& storage) {
-    return reinterpret_cast<T&>(storage);
-}
-
-template <typename T>
-void destroy (detail::Storage& storage) {
-    const T value(std::move(cast<T>(storage)));
-    (void)value; // appease linter
-}
-
-template <typename T>
-void move(detail::Storage&& src, detail::Storage& dest) {
-    new (static_cast<void*>(&dest)) const T (std::move(cast<T>(src)));
-    destroy<T>(src);
-}
 
 template <typename T>
 struct ValueTraits {
@@ -85,32 +56,39 @@ struct ValueTraits {
 };
 
 class Value {
-public:
+    // Node:        JSValue* or v8::Local<v8::Value>
+    // Android:     JSValue* or mbgl::android::Value
+    // iOS/macOS:   JSValue* or id
+    // Qt:          JSValue* or QVariant
+
+    // TODO: use platform-specific size
+    using Storage = std::aligned_storage_t<32, 8>;
     struct VTable {
-        void (*move) (detail::Storage&& src, detail::Storage& dest);
-        void (*destroy) (detail::Storage&);
+        void (*move) (Storage&& src, Storage& dest);
+        void (*destroy) (Storage&);
 
-        bool (*isUndefined) (const detail::Storage&);
+        bool (*isUndefined) (const Storage&);
 
-        bool        (*isArray)     (const detail::Storage&);
-        std::size_t (*arrayLength) (const detail::Storage&);
-        Value       (*arrayMember) (const detail::Storage&, std::size_t);
+        bool        (*isArray)     (const Storage&);
+        std::size_t (*arrayLength) (const Storage&);
+        Value       (*arrayMember) (const Storage&, std::size_t);
 
-        bool            (*isObject)     (const detail::Storage&);
-        optional<Value> (*objectMember) (const detail::Storage&, const char *);
-        optional<Error> (*eachMember)   (const detail::Storage&, const std::function<optional<Error> (const std::string&, const Value&)>&);
+        bool            (*isObject)     (const Storage&);
+        optional<Value> (*objectMember) (const Storage&, const char *);
+        optional<Error> (*eachMember)   (const Storage&, const std::function<optional<Error> (const std::string&, const Value&)>&);
 
-        optional<bool>        (*toBool)   (const detail::Storage&);
-        optional<float>       (*toNumber) (const detail::Storage&);
-        optional<double>      (*toDouble) (const detail::Storage&);
-        optional<std::string> (*toString) (const detail::Storage&);
-        optional<mbgl::Value> (*toValue)  (const detail::Storage&);
+        optional<bool>        (*toBool)   (const Storage&);
+        optional<float>       (*toNumber) (const Storage&);
+        optional<double>      (*toDouble) (const Storage&);
+        optional<std::string> (*toString) (const Storage&);
+        optional<mbgl::Value> (*toValue)  (const Storage&);
 
         // https://github.com/mapbox/mapbox-gl-native/issues/5623
-        optional<GeoJSON> (*toGeoJSON) (const detail::Storage&, Error&);
+        optional<GeoJSON> (*toGeoJSON) (const Storage&, Error&);
     };
 
-    Value(VTable* vt, detail::Storage&& s)
+public:
+    Value(VTable* vt, Storage&& s)
         : vtable(vt)
     {
         vtable->move(std::move(s), this->storage);
@@ -124,7 +102,7 @@ public:
 
     template <typename T>
     Value(const T value) : vtable(vtableForType<T>()) {
-        static_assert(sizeof(detail::Storage) >= sizeof(T), "detail::Storage must be large enough to hold value type");
+        static_assert(sizeof(Storage) >= sizeof(T), "Storage must be large enough to hold value type");
 
         new (static_cast<void*>(&storage)) const T (value);
    }
@@ -202,57 +180,61 @@ private:
         using Traits = ValueTraits<T>;
     
         static Value::VTable vtable = {
-            move<T>,
-            destroy<T>,
-            [] (const detail::Storage& s) {
-                return Traits::isUndefined(cast<T>(s));
+            [] (Storage&& src, Storage& dest) {
+                auto srcValue = reinterpret_cast<T&&>(src);
+                new (static_cast<void*>(&dest)) const T (std::move(srcValue));
+                srcValue.~T();
             },
-            [] (const detail::Storage& s) {
-                return Traits::isArray(cast<T>(s));
+            [] (Storage& s) { reinterpret_cast<T&>(s).~T(); },
+            [] (const Storage& s) {
+                return Traits::isUndefined(reinterpret_cast<const T&>(s));
             },
-            [] (const detail::Storage& s) {
-                return Traits::arrayLength(cast<T>(s));
+            [] (const Storage& s) {
+                return Traits::isArray(reinterpret_cast<const T&>(s));
             },
-            [] (const detail::Storage& s, std::size_t i) {
-                return Value(Traits::arrayMember(cast<T>(s), i));
+            [] (const Storage& s) {
+                return Traits::arrayLength(reinterpret_cast<const T&>(s));
             },
-            [] (const detail::Storage& s) {
-                return Traits::isObject(cast<T>(s));
+            [] (const Storage& s, std::size_t i) {
+                return Value(Traits::arrayMember(reinterpret_cast<const T&>(s), i));
             },
-            [] (const detail::Storage& s, const char * key) {
-                optional<T> member = Traits::objectMember(cast<T>(s), key);
+            [] (const Storage& s) {
+                return Traits::isObject(reinterpret_cast<const T&>(s));
+            },
+            [] (const Storage& s, const char * key) {
+                optional<T> member = Traits::objectMember(reinterpret_cast<const T&>(s), key);
                 if (member) return optional<Value>(*member);
                 return optional<Value>();
             },
-            [] (const detail::Storage& s, const std::function<optional<Error> (const std::string&, const Value&)>& fn) {
-                return Traits::eachMember(cast<T>(s), [&](const std::string& k, const T& v) {
+            [] (const Storage& s, const std::function<optional<Error> (const std::string&, const Value&)>& fn) {
+                return Traits::eachMember(reinterpret_cast<const T&>(s), [&](const std::string& k, const T& v) {
                     return fn(k, Value(v));
                 });
             },
-            [] (const detail::Storage& s) {
-                return Traits::toBool(cast<T>(s));
+            [] (const Storage& s) {
+                return Traits::toBool(reinterpret_cast<const T&>(s));
             },
-            [] (const detail::Storage& s) {
-                return Traits::toNumber(cast<T>(s));
+            [] (const Storage& s) {
+                return Traits::toNumber(reinterpret_cast<const T&>(s));
             },
-            [] (const detail::Storage& s) {
-                return Traits::toDouble(cast<T>(s));
+            [] (const Storage& s) {
+                return Traits::toDouble(reinterpret_cast<const T&>(s));
             },
-            [] (const detail::Storage& s) {
-                return Traits::toString(cast<T>(s));
+            [] (const Storage& s) {
+                return Traits::toString(reinterpret_cast<const T&>(s));
             },
-            []  (const detail::Storage& s) {
-                return Traits::toValue(cast<T>(s));
+            []  (const Storage& s) {
+                return Traits::toValue(reinterpret_cast<const T&>(s));
             },
-            [] (const detail::Storage& s, Error& err) {
-                return Traits::toGeoJSON(cast<T>(s), err);
+            [] (const Storage& s, Error& err) {
+                return Traits::toGeoJSON(reinterpret_cast<const T&>(s), err);
             }
         };
         return &vtable;
     }
 
     VTable* vtable;
-    detail::Storage storage;
+    Storage storage;
 };
 
 template <class T, class Enable = void>

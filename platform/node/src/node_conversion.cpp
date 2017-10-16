@@ -5,41 +5,39 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
-using V8Value = v8::Local<v8::Value>;
-
-template<> bool ValueTraits<V8Value>::isUndefined(const V8Value& value) {
+template<> bool ValueTraits<v8::Local<v8::Value>>::isUndefined(const v8::Local<v8::Value>& value) {
     Nan::HandleScope scope;
     
     return value->IsUndefined() || value->IsNull();
 }
 
-template<> bool ValueTraits<V8Value>::isArray(const V8Value& value) {
+template<> bool ValueTraits<v8::Local<v8::Value>>::isArray(const v8::Local<v8::Value>& value) {
     Nan::HandleScope scope;
     
     return value->IsArray();
 }
 
-template<> std::size_t ValueTraits<V8Value>::arrayLength(const V8Value& value) {
+template<> std::size_t ValueTraits<v8::Local<v8::Value>>::arrayLength(const v8::Local<v8::Value>& value) {
     Nan::HandleScope scope;
     // const_cast because v8::Local<T>::As is not marked const until node v8.0
     v8::Local<v8::Array> array = const_cast<v8::Local<v8::Value>&>(value).As<v8::Array>();
     return array->Length();
 }
 
-template<> V8Value ValueTraits<V8Value>::arrayMember(const V8Value& value, std::size_t i) {
+template<> v8::Local<v8::Value> ValueTraits<v8::Local<v8::Value>>::arrayMember(const v8::Local<v8::Value>& value, std::size_t i) {
     Nan::EscapableHandleScope scope;
     // const_cast because v8::Local<T>::As is not marked const until node v8.0
     v8::Local<v8::Array> array = const_cast<v8::Local<v8::Value>&>(value).As<v8::Array>();
     return scope.Escape(Nan::Get(array, i).ToLocalChecked());
 }
 
-template<> bool ValueTraits<V8Value>::isObject(const V8Value& value) {
+template<> bool ValueTraits<v8::Local<v8::Value>>::isObject(const v8::Local<v8::Value>& value) {
     Nan::HandleScope scope;
     
     return value->IsObject() && !value->IsArray();
 }
 
-template<> optional<V8Value> ValueTraits<V8Value>::objectMember(const V8Value& value, const char * name) {
+template<> optional<v8::Local<v8::Value>> ValueTraits<v8::Local<v8::Value>>::objectMember(const v8::Local<v8::Value>& value, const char * name) {
     Nan::EscapableHandleScope scope;
     
     if (!Nan::Has(Nan::To<v8::Object>(value).ToLocalChecked(), Nan::New(name).ToLocalChecked()).FromJust()) {
@@ -52,7 +50,7 @@ template<> optional<V8Value> ValueTraits<V8Value>::objectMember(const V8Value& v
     return {scope.Escape(result.ToLocalChecked())};
 }
 
-template<> optional<Error> ValueTraits<V8Value>::eachMember(const V8Value& value, const std::function<optional<Error> (const std::string&, const V8Value&)>& fn) {
+template<> optional<Error> ValueTraits<v8::Local<v8::Value>>::eachMember(const v8::Local<v8::Value>& value, const std::function<optional<Error> (const std::string&, const v8::Local<v8::Value>&)>& fn) {
     Nan::HandleScope scope;
     
     v8::Local<v8::Array> names = Nan::GetOwnPropertyNames(Nan::To<v8::Object>(value).ToLocalChecked()).ToLocalChecked();
@@ -67,7 +65,7 @@ template<> optional<Error> ValueTraits<V8Value>::eachMember(const V8Value& value
     return {};
 }
 
-template<> optional<bool> ValueTraits<V8Value>::toBool(const V8Value& value) {
+template<> optional<bool> ValueTraits<v8::Local<v8::Value>>::toBool(const v8::Local<v8::Value>& value) {
     Nan::HandleScope scope;
     
     if (!value->IsBoolean()) {
@@ -76,7 +74,7 @@ template<> optional<bool> ValueTraits<V8Value>::toBool(const V8Value& value) {
     return value->BooleanValue();
 }
 
-template<> optional<float> ValueTraits<V8Value>::toNumber(const V8Value& value) {
+template<> optional<float> ValueTraits<v8::Local<v8::Value>>::toNumber(const v8::Local<v8::Value>& value) {
     Nan::HandleScope scope;
     
     if (!value->IsNumber()) {
@@ -85,7 +83,7 @@ template<> optional<float> ValueTraits<V8Value>::toNumber(const V8Value& value) 
     return value->NumberValue();
 }
 
-template<> optional<double> ValueTraits<V8Value>::toDouble(const V8Value& value) {
+template<> optional<double> ValueTraits<v8::Local<v8::Value>>::toDouble(const v8::Local<v8::Value>& value) {
     Nan::HandleScope scope;
     
     if (!value->IsNumber()) {
@@ -94,7 +92,7 @@ template<> optional<double> ValueTraits<V8Value>::toDouble(const V8Value& value)
     return value->NumberValue();
 }
 
-template<> optional<std::string> ValueTraits<V8Value>::toString(const V8Value& value) {
+template<> optional<std::string> ValueTraits<v8::Local<v8::Value>>::toString(const v8::Local<v8::Value>& value) {
     Nan::HandleScope scope;
     
     if (!value->IsString()) {
@@ -103,7 +101,7 @@ template<> optional<std::string> ValueTraits<V8Value>::toString(const V8Value& v
     return std::string(*Nan::Utf8String(value));
 }
 
-template<> optional<mbgl::Value> ValueTraits<V8Value>::toValue(const V8Value& value) {
+template<> optional<mbgl::Value> ValueTraits<v8::Local<v8::Value>>::toValue(const v8::Local<v8::Value>& value) {
     
     if (value->IsFalse()) {
         return { false };
@@ -122,7 +120,7 @@ template<> optional<mbgl::Value> ValueTraits<V8Value>::toValue(const V8Value& va
     }
 }
 
-template<> optional<GeoJSON> ValueTraits<V8Value>::toGeoJSON(const V8Value& value, Error& error) {
+template<> optional<GeoJSON> ValueTraits<v8::Local<v8::Value>>::toGeoJSON(const v8::Local<v8::Value>& value, Error& error) {
     try {
         Nan::JSON JSON;
         
