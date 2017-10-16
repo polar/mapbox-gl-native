@@ -60,7 +60,6 @@ macro(mbgl_platform_core)
         PRIVATE platform/default/mbgl/util/default_thread_pool.cpp
     )
 
-    target_add_mason_package(mbgl-core PUBLIC geojson)
     target_add_mason_package(mbgl-core PUBLIC polylabel)
     target_add_mason_package(mbgl-core PRIVATE icu)
 

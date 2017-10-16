@@ -82,5 +82,4 @@ macro(mbgl_platform_test)
     )
 endmacro()
 
-target_add_mason_package(qmapboxgl PRIVATE geojson)
 target_add_mason_package(qmapboxgl PRIVATE rapidjson)

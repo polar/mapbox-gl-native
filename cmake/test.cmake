@@ -33,7 +33,6 @@ target_add_mason_package(mbgl-test PRIVATE rapidjson)
 target_add_mason_package(mbgl-test PRIVATE gtest)
 target_add_mason_package(mbgl-test PRIVATE pixelmatch)
 target_add_mason_package(mbgl-test PRIVATE boost)
-target_add_mason_package(mbgl-test PRIVATE geojson)
 target_add_mason_package(mbgl-test PRIVATE geojsonvt)
 target_add_mason_package(mbgl-test PRIVATE shelf-pack)
 
