@@ -11,9 +11,8 @@ namespace style {
 namespace conversion {
 
 /*
-   The `conversion` namespace defines conversions from a templated type `V` representing a JSON
-   object conforming to the schema defined by the Mapbox Style Specification, to the various C++
-   types that form the C++ model of that domain:
+   The `conversion` namespace defines conversions from JSON structures conforming to the schema defined by
+   the Mapbox Style Specification, to the various C++ types that form the C++ model of that domain:
 
        * `std::unique_ptr<Source>`
        * `std::unique_ptr<Layer>`
@@ -28,6 +27,54 @@ namespace conversion {
    Where `T` is one of the above types. If the conversion fails, the result is empty, and the
    error parameter includes diagnostic text suitable for presentation to a library user. Otherwise,
    a filled optional is returned.
+
+   `Value` is a type that encapsulates a special form of polymorphism over various underlying types that
+   can serve as input to the conversion algorithm. For instance, on macOS, we need to support
+   conversion from both RapidJSON types, and a JSON structure represented with `NSArray`/`NSDictionary`/etc.
+   On Qt, we need to support conversion from RapidJSON types and QVariant.
+
+   We don't want to use traditional forms of polymorphism to accomplish this:
+
+     * Compile time polymorphism using a template parameter for the actual value type leads to
+       excessive code bloat and long compile times.
+     * Runtime polymorphism using virtual methods requires extra heap allocation and ubiquitous
+       use of std::unique_ptr, unsuitable for this performance-sensitive code.
+
+   Therefore, we're using a custom implementation where we manually create and dispatch through a table
+   of function pointers (vtable), while keeping the storage for any of the possible underlying types inline
+   on the stack.
+
+   For a given underlying type T, an explicit specialization of ValueTraits<T> must be provided. This
+   specialization must provide the following static methods:
+
+      * `isUndefined(v)` -- returns a boolean indication whether `v` is undefined or a JSON null
+
+      * `isArray(v)` -- returns a boolean indicating whether `v` represents a JSON array
+      * `arrayLength(v)` -- called only if `isArray(v)`; returns a size_t length
+      * `arrayMember(v)` -- called only if `isArray(v)`; returns `V` or `V&`
+
+      * `isObject(v)` -- returns a boolean indicating whether `v` represents a JSON object
+      * `objectMember(v, name)` -- called only if `isObject(v)`; `name` is `const char *`; return value:
+         * is true when evaluated in a boolean context iff the named member exists
+         * is convertable to a `V` or `V&` when dereferenced
+      * `eachMember(v, [] (const std::string&, const V&) -> optional<Error> {...})` -- called
+         only if `isObject(v)`; calls the provided lambda once for each key and value of the object;
+         short-circuits if any call returns an `Error`
+
+      * `toBool(v)` -- returns `optional<bool>`, absence indicating `v` is not a JSON boolean
+      * `toNumber(v)` -- returns `optional<float>`, absence indicating `v` is not a JSON number
+      * `toDouble(v)` -- returns `optional<double>`, absence indicating `v` is not a JSON number
+      * `toString(v)` -- returns `optional<std::string>`, absence indicating `v` is not a JSON string
+      * `toValue(v)` -- returns `optional<mbgl::Value>`, a variant type, for generic conversion,
+        absence indicating `v` is not a boolean, number, or string. Numbers should be converted to
+        unsigned integer, signed integer, or floating point, in descending preference.
+
+   In addition, the type T must be move-constructable. And finally, `Value::Storage`, a typedef for
+   `std::aligned_storage_t`, must be large enough to satisfy the memory requirements for any of the
+   possible underlying types. (A static assert will fail if this is not the case.)
+
+   `Value` itself is movable, but not copyable. A moved-from `Value` is in an invalid state; you must
+   not do anything with it except let it go out of scope.
 */
 
 struct Error { std::string message; };

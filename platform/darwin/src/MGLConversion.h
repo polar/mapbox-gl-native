@@ -6,6 +6,7 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
+// A wrapper class for `id`, so as not to confuse ARC.
 class Holder {
 public:
     Holder(const id v) : value(v) {}
