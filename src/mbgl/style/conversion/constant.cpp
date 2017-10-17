@@ -4,7 +4,7 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
-optional<bool> Converter<bool>::operator()(const Value& value, Error& error) const {
+optional<bool> Converter<bool>::operator()(const Convertible& value, Error& error) const {
     optional<bool> converted = toBool(value);
     if (!converted) {
         error = { "value must be a boolean" };
@@ -13,7 +13,7 @@ optional<bool> Converter<bool>::operator()(const Value& value, Error& error) con
     return *converted;
 }
 
-optional<float> Converter<float>::operator()(const Value& value, Error& error) const {
+optional<float> Converter<float>::operator()(const Convertible& value, Error& error) const {
     optional<float> converted = toNumber(value);
     if (!converted) {
         error = { "value must be a number" };
@@ -22,7 +22,7 @@ optional<float> Converter<float>::operator()(const Value& value, Error& error) c
     return *converted;
 }
 
-optional<std::string> Converter<std::string>::operator()(const Value& value, Error& error) const {
+optional<std::string> Converter<std::string>::operator()(const Convertible& value, Error& error) const {
     optional<std::string> converted = toString(value);
     if (!converted) {
         error = { "value must be a string" };
@@ -31,7 +31,7 @@ optional<std::string> Converter<std::string>::operator()(const Value& value, Err
     return *converted;
 }
 
-optional<Color> Converter<Color>::operator()(const Value& value, Error& error) const {
+optional<Color> Converter<Color>::operator()(const Convertible& value, Error& error) const {
     optional<std::string> string = toString(value);
     if (!string) {
         error = { "value must be a string" };
@@ -47,7 +47,7 @@ optional<Color> Converter<Color>::operator()(const Value& value, Error& error) c
     return *color;
 }
 
-optional<std::vector<float>> Converter<std::vector<float>>::operator()(const Value& value, Error& error) const {
+optional<std::vector<float>> Converter<std::vector<float>>::operator()(const Convertible& value, Error& error) const {
     if (!isArray(value)) {
         error = { "value must be an array" };
         return {};
@@ -68,7 +68,7 @@ optional<std::vector<float>> Converter<std::vector<float>>::operator()(const Val
     return result;
 }
 
-optional<std::vector<std::string>> Converter<std::vector<std::string>>::operator()(const Value& value, Error& error) const {
+optional<std::vector<std::string>> Converter<std::vector<std::string>>::operator()(const Convertible& value, Error& error) const {
     if (!isArray(value)) {
         error = { "value must be an array" };
         return {};

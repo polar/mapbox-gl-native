@@ -14,7 +14,7 @@ namespace style {
 namespace conversion {
 
 template <>
-class ValueTraits<QVariant> {
+class ConversionTraits<QVariant> {
 public:
     static bool isUndefined(const QVariant& value) {
         return value.isNull() || !value.isValid();
@@ -105,7 +105,7 @@ public:
         }
     }
 
-    static optional<mbgl::Value> toValue(const QVariant& value) {
+    static optional<Value> toValue(const QVariant& value) {
         if (value.type() == QVariant::Bool) {
             return { value.toBool() };
         } else if (value.type() == QVariant::String) {
@@ -140,7 +140,7 @@ public:
 
 template <class T, class...Args>
 optional<T> convert(const QVariant& value, Error& error, Args&&...args) {
-    return convert<T>(Value(value), error, std::forward<Args>(args)...);
+    return convert<T>(Convertible(value), error, std::forward<Args>(args)...);
 }
 
 } // namespace conversion

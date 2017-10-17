@@ -14,7 +14,7 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
-optional<Error> setLayoutProperty(Layer& layer, const std::string& name, const Value& value) {
+optional<Error> setLayoutProperty(Layer& layer, const std::string& name, const Convertible& value) {
     static const auto setters = makeLayoutPropertySetters();
     auto it = setters.find(name);
     if (it == setters.end()) {
@@ -23,7 +23,7 @@ optional<Error> setLayoutProperty(Layer& layer, const std::string& name, const V
     return it->second(layer, value);
 }
 
-optional<Error> setPaintProperty(Layer& layer, const std::string& name, const Value& value) {
+optional<Error> setPaintProperty(Layer& layer, const std::string& name, const Convertible& value) {
     static const auto setters = makePaintPropertySetters();
     auto it = setters.find(name);
     if (it == setters.end()) {
@@ -32,18 +32,18 @@ optional<Error> setPaintProperty(Layer& layer, const std::string& name, const Va
     return it->second(layer, value);
 }
 
-optional<Error> setPaintProperties(Layer& layer, const Value& value) {
+optional<Error> setPaintProperties(Layer& layer, const Convertible& value) {
     auto paintValue = objectMember(value, "paint");
     if (!paintValue) {
         return {};
     }
-    return eachMember(*paintValue, [&] (const std::string& k, const Value& v) {
+    return eachMember(*paintValue, [&] (const std::string& k, const Convertible& v) {
         return setPaintProperty(layer, k, v);
     });
 }
 
 template <class LayerType>
-optional<std::unique_ptr<Layer>> convertVectorLayer(const std::string& id, const Value& value, Error& error) {
+optional<std::unique_ptr<Layer>> convertVectorLayer(const std::string& id, const Convertible& value, Error& error) {
     auto sourceValue = objectMember(value, "source");
     if (!sourceValue) {
         error = { "layer must have a source" };
@@ -80,7 +80,7 @@ optional<std::unique_ptr<Layer>> convertVectorLayer(const std::string& id, const
     return { std::move(layer) };
 }
 
-static optional<std::unique_ptr<Layer>> convertRasterLayer(const std::string& id, const Value& value, Error& error) {
+static optional<std::unique_ptr<Layer>> convertRasterLayer(const std::string& id, const Convertible& value, Error& error) {
     auto sourceValue = objectMember(value, "source");
     if (!sourceValue) {
         error = { "layer must have a source" };
@@ -96,11 +96,11 @@ static optional<std::unique_ptr<Layer>> convertRasterLayer(const std::string& id
     return { std::make_unique<RasterLayer>(id, *source) };
 }
 
-static optional<std::unique_ptr<Layer>> convertBackgroundLayer(const std::string& id, const Value&, Error&) {
+static optional<std::unique_ptr<Layer>> convertBackgroundLayer(const std::string& id, const Convertible&, Error&) {
     return { std::make_unique<BackgroundLayer>(id) };
 }
 
-optional<std::unique_ptr<Layer>> Converter<std::unique_ptr<Layer>>::operator()(const Value& value, Error& error) const {
+optional<std::unique_ptr<Layer>> Converter<std::unique_ptr<Layer>>::operator()(const Convertible& value, Error& error) const {
     if (!isObject(value)) {
         error = { "layer must be an object" };
         return {};
@@ -183,7 +183,7 @@ optional<std::unique_ptr<Layer>> Converter<std::unique_ptr<Layer>>::operator()(c
             error = { "layout must be an object" };
             return {};
         }
-        optional<Error> error_ = eachMember(*layoutValue, [&] (const std::string& k, const Value& v) {
+        optional<Error> error_ = eachMember(*layoutValue, [&] (const std::string& k, const Convertible& v) {
             return setLayoutProperty(*layer, k, v);
         });
         if (error_) {

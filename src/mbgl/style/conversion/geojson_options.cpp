@@ -4,7 +4,7 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
-optional<GeoJSONOptions> Converter<GeoJSONOptions>::operator()(const Value& value, Error& error) const {
+optional<GeoJSONOptions> Converter<GeoJSONOptions>::operator()(const Convertible& value, Error& error) const {
     GeoJSONOptions options;
 
     const auto minzoomValue = objectMember(value, "minzoom");

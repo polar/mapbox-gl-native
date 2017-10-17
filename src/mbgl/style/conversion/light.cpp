@@ -7,7 +7,7 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
-optional<Light> Converter<Light>::operator()(const Value& value, Error& error) const {
+optional<Light> Converter<Light>::operator()(const Convertible& value, Error& error) const {
     if (!isObject(value)) {
         error = { "light must be an object" };
         return {};

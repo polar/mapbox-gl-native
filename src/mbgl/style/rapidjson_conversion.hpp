@@ -11,7 +11,7 @@ namespace style {
 namespace conversion {
 
 template <>
-class ValueTraits<const JSValue*> {
+class ConversionTraits<const JSValue*> {
 public:
     static bool isUndefined(const JSValue* value) {
         return value->IsNull();
@@ -81,7 +81,7 @@ public:
         return {{ value->GetString(), value->GetStringLength() }};
     }
 
-    static optional<mbgl::Value> toValue(const JSValue* value) {
+    static optional<Value> toValue(const JSValue* value) {
         switch (value->GetType()) {
             case rapidjson::kNullType:
             case rapidjson::kFalseType:
@@ -115,7 +115,7 @@ public:
 
 template <class T, class...Args>
 optional<T> convert(const JSValue& value, Error& error, Args&&...args) {
-    return convert<T>(Value(&value), error, std::forward<Args>(args)...);
+    return convert<T>(Convertible(&value), error, std::forward<Args>(args)...);
 }
 
 } // namespace conversion

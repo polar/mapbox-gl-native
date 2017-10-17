@@ -10,7 +10,7 @@ namespace conversion {
 template <>
 struct Converter<Tileset> {
 public:
-    optional<Tileset> operator()(const Value& value, Error& error) const;
+    optional<Tileset> operator()(const Convertible& value, Error& error) const;
 };
 
 } // namespace conversion

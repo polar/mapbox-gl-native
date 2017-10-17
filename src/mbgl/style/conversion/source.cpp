@@ -14,7 +14,7 @@ namespace style {
 namespace conversion {
 
 // A tile source can either specify a URL to TileJSON, or inline TileJSON.
-static optional<variant<std::string, Tileset>> convertURLOrTileset(const Value& value, Error& error) {
+static optional<variant<std::string, Tileset>> convertURLOrTileset(const Convertible& value, Error& error) {
     auto urlVal = objectMember(value, "url");
     if (!urlVal) {
         optional<Tileset> tileset = convert<Tileset>(value, error);
@@ -34,7 +34,7 @@ static optional<variant<std::string, Tileset>> convertURLOrTileset(const Value& 
 }
 
 static optional<std::unique_ptr<Source>> convertRasterSource(const std::string& id,
-                                                             const Value& value,
+                                                             const Convertible& value,
                                                              Error& error) {
     optional<variant<std::string, Tileset>> urlOrTileset = convertURLOrTileset(value, error);
     if (!urlOrTileset) {
@@ -56,7 +56,7 @@ static optional<std::unique_ptr<Source>> convertRasterSource(const std::string& 
 }
 
 static optional<std::unique_ptr<Source>> convertVectorSource(const std::string& id,
-                                                             const Value& value,
+                                                             const Convertible& value,
                                                              Error& error) {
     optional<variant<std::string, Tileset>> urlOrTileset = convertURLOrTileset(value, error);
     if (!urlOrTileset) {
@@ -67,7 +67,7 @@ static optional<std::unique_ptr<Source>> convertVectorSource(const std::string& 
 }
 
 static optional<std::unique_ptr<Source>> convertGeoJSONSource(const std::string& id,
-                                                              const Value& value,
+                                                              const Convertible& value,
                                                               Error& error) {
     auto dataValue = objectMember(value, "data");
     if (!dataValue) {
@@ -99,7 +99,7 @@ static optional<std::unique_ptr<Source>> convertGeoJSONSource(const std::string&
 }
 
 static optional<std::unique_ptr<Source>> convertImageSource(const std::string& id,
-                                                            const Value& value,
+                                                            const Convertible& value,
                                                             Error& error) {
     auto urlValue = objectMember(value, "url");
     if (!urlValue) {
@@ -138,7 +138,7 @@ static optional<std::unique_ptr<Source>> convertImageSource(const std::string& i
     return { std::move(result) };
 }
 
-optional<std::unique_ptr<Source>> Converter<std::unique_ptr<Source>>::operator()(const Value& value, Error& error, const std::string& id) const {
+optional<std::unique_ptr<Source>> Converter<std::unique_ptr<Source>>::operator()(const Convertible& value, Error& error, const std::string& id) const {
     if (!isObject(value)) {
         error = { "source must be an object" };
         return {};

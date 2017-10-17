@@ -15,7 +15,7 @@ namespace style {
 namespace conversion {
 
 template <>
-class ValueTraits<mbgl::android::Value> {
+class ConversionTraits<mbgl::android::Value> {
 public:
     static bool isUndefined(const mbgl::android::Value& value) {
         return value.isNull();
@@ -85,7 +85,7 @@ public:
         }
     }
 
-    static optional<mbgl::Value> toValue(const mbgl::android::Value& value) {
+    static optional<Value> toValue(const mbgl::android::Value& value) {
         if (value.isNull()) {
             return {};
         } else if (value.isBool()) {
@@ -111,7 +111,7 @@ public:
 
 template <class T, class...Args>
 optional<T> convert(const mbgl::android::Value& value, Error& error, Args&&...args) {
-    return convert<T>(Value(value), error, std::forward<Args>(args)...);
+    return convert<T>(Convertible(value), error, std::forward<Args>(args)...);
 }
 
 } // namespace conversion

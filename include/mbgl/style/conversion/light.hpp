@@ -10,7 +10,7 @@ namespace conversion {
 template <>
 struct Converter<Light> {
 public:
-    optional<Light> operator()(const Value& value, Error& error) const;
+    optional<Light> operator()(const Convertible& value, Error& error) const;
 };
 
 } // namespace conversion

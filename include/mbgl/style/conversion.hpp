@@ -22,13 +22,13 @@ namespace conversion {
    A single template function serves as the public interface:
 
        template <class T>
-       optional<T> convert(const Value& value, Error& error);
+       optional<T> convert(const Convertible& input, Error& error);
 
    Where `T` is one of the above types. If the conversion fails, the result is empty, and the
    error parameter includes diagnostic text suitable for presentation to a library user. Otherwise,
    a filled optional is returned.
 
-   `Value` is a type that encapsulates a special form of polymorphism over various underlying types that
+   `Convertible` is a type that encapsulates a special form of polymorphism over various underlying types that
    can serve as input to the conversion algorithm. For instance, on macOS, we need to support
    conversion from both RapidJSON types, and a JSON structure represented with `NSArray`/`NSDictionary`/etc.
    On Qt, we need to support conversion from RapidJSON types and QVariant.
@@ -40,11 +40,11 @@ namespace conversion {
      * Runtime polymorphism using virtual methods requires extra heap allocation and ubiquitous
        use of std::unique_ptr, unsuitable for this performance-sensitive code.
 
-   Therefore, we're using a custom implementation where we manually create and dispatch through a table
-   of function pointers (vtable), while keeping the storage for any of the possible underlying types inline
-   on the stack.
+   Therefore, we're using a custom implementation of runtime polymorphism where we manually create and
+   dispatch through a table of function pointers (vtable), while keeping the storage for any of the possible
+   underlying types inline on the stack, using `std::aligned_storage`.
 
-   For a given underlying type T, an explicit specialization of ValueTraits<T> must be provided. This
+   For a given underlying type T, an explicit specialization of `ConversionTraits<T>` must be provided. This
    specialization must provide the following static methods:
 
       * `isUndefined(v)` -- returns a boolean indication whether `v` is undefined or a JSON null
@@ -65,32 +65,32 @@ namespace conversion {
       * `toNumber(v)` -- returns `optional<float>`, absence indicating `v` is not a JSON number
       * `toDouble(v)` -- returns `optional<double>`, absence indicating `v` is not a JSON number
       * `toString(v)` -- returns `optional<std::string>`, absence indicating `v` is not a JSON string
-      * `toValue(v)` -- returns `optional<mbgl::Value>`, a variant type, for generic conversion,
+      * `toValue(v)` -- returns `optional<Value>`, a variant type, for generic conversion,
         absence indicating `v` is not a boolean, number, or string. Numbers should be converted to
         unsigned integer, signed integer, or floating point, in descending preference.
 
-   In addition, the type T must be move-constructable. And finally, `Value::Storage`, a typedef for
+   In addition, the type T must be move-constructable. And finally, `Convertible::Storage`, a typedef for
    `std::aligned_storage_t`, must be large enough to satisfy the memory requirements for any of the
    possible underlying types. (A static assert will fail if this is not the case.)
 
-   `Value` itself is movable, but not copyable. A moved-from `Value` is in an invalid state; you must
-   not do anything with it except let it go out of scope.
+   `Convertible` itself is movable, but not copyable. A moved-from `Convertible` is in an invalid state;
+   you must not do anything with it except let it go out of scope.
 */
 
 struct Error { std::string message; };
 
 template <typename T>
-class ValueTraits;
+class ConversionTraits;
 
-class Value {
+class Convertible {
 public:
     template <typename T>
-    Value(const T value) : vtable(vtableForType<T>()) {
+    Convertible(const T value) : vtable(vtableForType<T>()) {
         static_assert(sizeof(Storage) >= sizeof(T), "Storage must be large enough to hold value type");
         new (static_cast<void*>(&storage)) T(value);
    }
 
-    Value(Value&& v)
+    Convertible(Convertible&& v)
         : vtable(v.vtable)
     {
         if (vtable) {
@@ -98,13 +98,13 @@ public:
         }
     }
 
-    ~Value() {
+    ~Convertible() {
         if (vtable) {
             vtable->destroy(storage);
         }
     }
 
-    Value& operator=(Value&& v) {
+    Convertible& operator=(Convertible&& v) {
         if (vtable) {
             vtable->destroy(storage);
         }
@@ -116,71 +116,71 @@ public:
         return *this;
     }
 
-    Value()                        = delete;
-    Value(const Value&)            = delete;
-    Value& operator=(const Value&) = delete;
+    Convertible()                              = delete;
+    Convertible(const Convertible&)            = delete;
+    Convertible& operator=(const Convertible&) = delete;
 
-    friend inline bool isUndefined(const Value& v) {
+    friend inline bool isUndefined(const Convertible& v) {
         assert(v.vtable);
         return v.vtable->isUndefined(v.storage);
     }
 
-    friend inline bool isArray(const Value& v) {
+    friend inline bool isArray(const Convertible& v) {
         assert(v.vtable);
         return v.vtable->isArray(v.storage);
     }
 
-    friend inline std::size_t arrayLength(const Value& v) {
+    friend inline std::size_t arrayLength(const Convertible& v) {
         assert(v.vtable);
         return v.vtable->arrayLength(v.storage);
     }
 
-    friend inline Value arrayMember(const Value& v, std::size_t i) {
+    friend inline Convertible arrayMember(const Convertible& v, std::size_t i) {
         assert(v.vtable);
         return v.vtable->arrayMember(v.storage, i);
     }
 
-    friend inline bool isObject(const Value& v) {
+    friend inline bool isObject(const Convertible& v) {
         assert(v.vtable);
         return v.vtable->isObject(v.storage);
     }
 
-    friend inline optional<Value> objectMember(const Value& v, const char * name) {
+    friend inline optional<Convertible> objectMember(const Convertible& v, const char * name) {
         assert(v.vtable);
         return v.vtable->objectMember(v.storage, name);
     }
 
-    friend inline optional<Error> eachMember(const Value& v, const std::function<optional<Error> (const std::string&, const Value&)>& fn) {
+    friend inline optional<Error> eachMember(const Convertible& v, const std::function<optional<Error> (const std::string&, const Convertible&)>& fn) {
         assert(v.vtable);
         return v.vtable->eachMember(v.storage, fn);
     }
 
-    friend inline optional<bool> toBool(const Value& v) {
+    friend inline optional<bool> toBool(const Convertible& v) {
         assert(v.vtable);
         return v.vtable->toBool(v.storage);
     }
 
-    friend inline optional<float> toNumber(const Value& v) {
+    friend inline optional<float> toNumber(const Convertible& v) {
         assert(v.vtable);
         return v.vtable->toNumber(v.storage);
     }
 
-    friend inline optional<double> toDouble(const Value& v) {
+    friend inline optional<double> toDouble(const Convertible& v) {
         assert(v.vtable);
         return v.vtable->toDouble(v.storage);
     }
 
-    friend inline optional<std::string> toString(const Value& v) {
+    friend inline optional<std::string> toString(const Convertible& v) {
         assert(v.vtable);
         return v.vtable->toString(v.storage);
     }
 
-    friend inline optional<mbgl::Value> toValue(const Value& v) {
+    friend inline optional<Value> toValue(const Convertible& v) {
         assert(v.vtable);
         return v.vtable->toValue(v.storage);
     }
 
-    friend inline optional<GeoJSON> toGeoJSON(const Value& v, Error& error) {
+    friend inline optional<GeoJSON> toGeoJSON(const Convertible& v, Error& error) {
         assert(v.vtable);
         return v.vtable->toGeoJSON(v.storage, error);
     }
@@ -202,17 +202,17 @@ private:
 
         bool        (*isArray)     (const Storage&);
         std::size_t (*arrayLength) (const Storage&);
-        Value       (*arrayMember) (const Storage&, std::size_t);
+        Convertible (*arrayMember) (const Storage&, std::size_t);
 
-        bool            (*isObject)     (const Storage&);
-        optional<Value> (*objectMember) (const Storage&, const char *);
-        optional<Error> (*eachMember)   (const Storage&, const std::function<optional<Error> (const std::string&, const Value&)>&);
+        bool                  (*isObject)     (const Storage&);
+        optional<Convertible> (*objectMember) (const Storage&, const char *);
+        optional<Error>       (*eachMember)   (const Storage&, const std::function<optional<Error> (const std::string&, const Convertible&)>&);
 
         optional<bool>        (*toBool)   (const Storage&);
         optional<float>       (*toNumber) (const Storage&);
         optional<double>      (*toDouble) (const Storage&);
         optional<std::string> (*toString) (const Storage&);
-        optional<mbgl::Value> (*toValue)  (const Storage&);
+        optional<Value>       (*toValue)  (const Storage&);
 
         // https://github.com/mapbox/mapbox-gl-native/issues/5623
         optional<GeoJSON> (*toGeoJSON) (const Storage&, Error&);
@@ -220,9 +220,8 @@ private:
 
     template <typename T>
     static VTable* vtableForType() {
-        using Traits = ValueTraits<T>;
-    
-        static Value::VTable vtable = {
+        using Traits = ConversionTraits<T>;
+        static VTable vtable = {
             [] (Storage&& src, Storage& dest) {
                 auto srcValue = reinterpret_cast<T&&>(src);
                 new (static_cast<void*>(&dest)) T(std::move(srcValue));
@@ -241,19 +240,19 @@ private:
                 return Traits::arrayLength(reinterpret_cast<const T&>(s));
             },
             [] (const Storage& s, std::size_t i) {
-                return Value(Traits::arrayMember(reinterpret_cast<const T&>(s), i));
+                return Convertible(Traits::arrayMember(reinterpret_cast<const T&>(s), i));
             },
             [] (const Storage& s) {
                 return Traits::isObject(reinterpret_cast<const T&>(s));
             },
             [] (const Storage& s, const char * key) {
                 optional<T> member = Traits::objectMember(reinterpret_cast<const T&>(s), key);
-                if (member) return optional<Value>(*member);
-                return optional<Value>();
+                if (member) return optional<Convertible>(*member);
+                return optional<Convertible>();
             },
-            [] (const Storage& s, const std::function<optional<Error> (const std::string&, const Value&)>& fn) {
+            [] (const Storage& s, const std::function<optional<Error> (const std::string&, const Convertible&)>& fn) {
                 return Traits::eachMember(reinterpret_cast<const T&>(s), [&](const std::string& k, const T& v) {
-                    return fn(k, Value(v));
+                    return fn(k, Convertible(v));
                 });
             },
             [] (const Storage& s) {
@@ -286,7 +285,7 @@ template <class T, class Enable = void>
 struct Converter;
 
 template <class T, class...Args>
-optional<T> convert(const Value& value, Error& error, Args&&...args) {
+optional<T> convert(const Convertible& value, Error& error, Args&&...args) {
     return Converter<T>()(value, error, std::forward<Args>(args)...);
 }
 

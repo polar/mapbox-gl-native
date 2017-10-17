@@ -9,7 +9,7 @@ namespace conversion {
 
 template <>
 struct Converter<GeoJSONOptions> {
-    optional<GeoJSONOptions> operator()(const Value& value, Error& error) const;
+    optional<GeoJSONOptions> operator()(const Convertible& value, Error& error) const;
 };
 
 } // namespace conversion

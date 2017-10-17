@@ -13,10 +13,10 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
-using PropertySetter = optional<Error> (*) (Layer&, const Value&);
+using PropertySetter = optional<Error> (*) (Layer&, const Convertible&);
 
 template <class L, class PropertyValue, void (L::*setter)(PropertyValue)>
-optional<Error> setProperty(Layer& layer, const Value& value) {
+optional<Error> setProperty(Layer& layer, const Convertible& value) {
     auto* typedLayer = layer.as<L>();
     if (!typedLayer) {
         return Error { "layer doesn't support this property" };
@@ -33,7 +33,7 @@ optional<Error> setProperty(Layer& layer, const Value& value) {
 }
 
 template <class L, void (L::*setter)(const TransitionOptions&)>
-optional<Error> setTransition(Layer& layer, const Value& value) {
+optional<Error> setTransition(Layer& layer, const Convertible& value) {
     auto* typedLayer = layer.as<L>();
     if (!typedLayer) {
         return Error { "layer doesn't support this property" };
@@ -49,7 +49,7 @@ optional<Error> setTransition(Layer& layer, const Value& value) {
     return {};
 }
 
-inline optional<Error> setVisibility(Layer& layer, const Value& value) {
+inline optional<Error> setVisibility(Layer& layer, const Convertible& value) {
     if (isUndefined(value)) {
         layer.setVisibility(VisibilityType::Visible);
         return {};

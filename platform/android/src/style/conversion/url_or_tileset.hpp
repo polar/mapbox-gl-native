@@ -20,16 +20,16 @@ namespace android {
 inline variant<std::string, Tileset> convertURLOrTileset(const mbgl::android::Value& value) {
     using namespace mbgl::style::conversion;
 
-    const mbgl::style::conversion::Value converted(value);
-    if (isObject(converted)) {
+    const Convertible convertible(value);
+    if (isObject(convertible)) {
         Error error;
-        optional<Tileset> tileset = convert<Tileset>(converted, error);
+        optional<Tileset> tileset = convert<Tileset>(convertible, error);
         if (!tileset) {
             throw std::logic_error(error.message);
         }
         return { *tileset };
     } else {
-        return { *toString(converted) };
+        return { *toString(convertible) };
     }
 }
 

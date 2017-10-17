@@ -258,7 +258,7 @@ void Parser::parseLayer(const std::string& id, const JSValue& value, std::unique
         }
 
         layer = reference->cloneRef(id);
-        conversion::setPaintProperties(*layer, conversion::Value(&value));
+        conversion::setPaintProperties(*layer, conversion::Convertible(&value));
     } else {
         conversion::Error error;
         optional<std::unique_ptr<Layer>> converted = conversion::convert<std::unique_ptr<Layer>>(value, error);

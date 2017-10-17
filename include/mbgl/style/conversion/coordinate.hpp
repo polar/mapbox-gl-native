@@ -10,7 +10,7 @@ namespace conversion {
 template<>
 struct Converter<LatLng> {
 public:
-    optional<LatLng> operator() (const Value& value, Error& error) const;
+    optional<LatLng> operator() (const Convertible& value, Error& error) const;
 };
 
 } // namespace conversion

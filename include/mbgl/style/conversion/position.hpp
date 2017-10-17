@@ -9,7 +9,7 @@ namespace conversion {
 
 template <>
 struct Converter<Position> {
-    optional<Position> operator()(const Value& value, Error& error) const;
+    optional<Position> operator()(const Convertible& value, Error& error) const;
 };
 
 } // namespace conversion

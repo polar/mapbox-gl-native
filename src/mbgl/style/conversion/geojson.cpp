@@ -5,7 +5,7 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
-optional<GeoJSON> Converter<GeoJSON>::operator()(const Value& value, Error& error) const {
+optional<GeoJSON> Converter<GeoJSON>::operator()(const Convertible& value, Error& error) const {
     return toGeoJSON(value, error);
 }
 

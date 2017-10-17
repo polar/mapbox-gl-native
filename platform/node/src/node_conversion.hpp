@@ -16,7 +16,7 @@ namespace style {
 namespace conversion {
 
 template <>
-class ValueTraits<v8::Local<v8::Value>> {
+class ConversionTraits<v8::Local<v8::Value>> {
 public:
     static bool isUndefined(const v8::Local<v8::Value>& value) {
         Nan::HandleScope scope;
@@ -105,7 +105,7 @@ public:
         return std::string(*Nan::Utf8String(value));
     }
 
-    static optional<mbgl::Value> toValue(const v8::Local<v8::Value>& value) {
+    static optional<Value> toValue(const v8::Local<v8::Value>& value) {
         if (value->IsFalse()) {
             return { false };
         } else if (value->IsTrue()) {
@@ -137,7 +137,7 @@ public:
 
 template <class T, class...Args>
 optional<T> convert(const v8::Local<v8::Value>& value, Error& error, Args&&...args) {
-    return convert<T>(Value(value), error, std::forward<Args>(args)...);
+    return convert<T>(Convertible(value), error, std::forward<Args>(args)...);
 }
 
 } // namespace conversion

@@ -14,7 +14,7 @@ public:
 };
 
 template <>
-class ValueTraits<Holder> {
+class ConversionTraits<Holder> {
 public:
     static bool isUndefined(const Holder& holder) {
         const id value = holder.value;
@@ -140,8 +140,8 @@ private:
     }
 };
 
-inline Value makeValue(const id value) {
-    return {Holder(value)};
+inline Convertible makeConvertible(const id value) {
+    return Convertible(Holder(value));
 }
 
 } // namespace conversion

@@ -4,7 +4,7 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
-optional<LatLng> Converter<LatLng>::operator() (const Value& value, Error& error) const {
+optional<LatLng> Converter<LatLng>::operator() (const Convertible& value, Error& error) const {
     if (!isArray(value) || arrayLength(value) < 2 ) {
         error = { "coordinate array must contain numeric longitude and latitude values" };
         return {};

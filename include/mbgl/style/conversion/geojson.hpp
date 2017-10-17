@@ -13,7 +13,7 @@ optional<GeoJSON> parseGeoJSON(const std::string&, Error&);
 template <>
 struct Converter<GeoJSON> {
 public:
-    optional<GeoJSON> operator()(const Value&, Error&) const;
+    optional<GeoJSON> operator()(const Convertible&, Error&) const;
 };
 
 } // namespace conversion

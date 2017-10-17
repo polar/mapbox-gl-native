@@ -12,7 +12,7 @@ namespace style {
 namespace conversion {
 
 template <class D, class R>
-optional<std::map<D, R>> convertStops(const Value& value, Error& error) {
+optional<std::map<D, R>> convertStops(const Convertible& value, Error& error) {
     auto stopsValue = objectMember(value, "stops");
     if (!stopsValue) {
         error = { "function value must specify stops" };
@@ -63,7 +63,7 @@ template <class T>
 struct Converter<ExponentialStops<T>> {
     static constexpr const char * type = "exponential";
 
-    optional<ExponentialStops<T>> operator()(const Value& value, Error& error) const {
+    optional<ExponentialStops<T>> operator()(const Convertible& value, Error& error) const {
         auto stops = convertStops<float, T>(value, error);
         if (!stops) {
             return {};
@@ -88,7 +88,7 @@ template <class T>
 struct Converter<IntervalStops<T>> {
     static constexpr const char * type = "interval";
 
-    optional<IntervalStops<T>> operator()(const Value& value, Error& error) const {
+    optional<IntervalStops<T>> operator()(const Convertible& value, Error& error) const {
         auto stops = convertStops<float, T>(value, error);
         if (!stops) {
             return {};
@@ -99,7 +99,7 @@ struct Converter<IntervalStops<T>> {
 
 template <>
 struct Converter<CategoricalValue> {
-    optional<CategoricalValue> operator()(const Value& value, Error& error) const {
+    optional<CategoricalValue> operator()(const Convertible& value, Error& error) const {
         auto b = toBool(value);
         if (b) {
             return { *b };
@@ -124,7 +124,7 @@ template <class T>
 struct Converter<CategoricalStops<T>> {
     static constexpr const char * type = "categorical";
 
-    optional<CategoricalStops<T>> operator()(const Value& value, Error& error) const {
+    optional<CategoricalStops<T>> operator()(const Convertible& value, Error& error) const {
         auto stops = convertStops<CategoricalValue, T>(value, error);
         if (!stops) {
             return {};
@@ -138,7 +138,7 @@ template <class T>
 struct Converter<IdentityStops<T>> {
     static constexpr const char * type = "identity";
 
-    optional<IdentityStops<T>> operator()(const Value&, Error&) const {
+    optional<IdentityStops<T>> operator()(const Convertible&, Error&) const {
         return IdentityStops<T>();
     }
 };
@@ -149,7 +149,7 @@ struct StopsConverter;
 template <class T, class... Ts>
 struct StopsConverter<T, variant<Ts...>> {
 public:
-    optional<variant<Ts...>> operator()(const Value& value, Error& error) const {
+    optional<variant<Ts...>> operator()(const Convertible& value, Error& error) const {
         std::string type = util::Interpolatable<T>::value ? "exponential" : "interval";
 
         auto typeValue = objectMember(value, "type");
@@ -187,7 +187,7 @@ public:
 
 template <class T>
 struct Converter<CameraFunction<T>> {
-    optional<CameraFunction<T>> operator()(const Value& value, Error& error) const {
+    optional<CameraFunction<T>> operator()(const Convertible& value, Error& error) const {
         if (!isObject(value)) {
             error = { "function must be an object" };
             return {};
@@ -203,7 +203,7 @@ struct Converter<CameraFunction<T>> {
 };
 
 template <class T>
-optional<optional<T>> convertDefaultValue(const Value& value, Error& error) {
+optional<optional<T>> convertDefaultValue(const Convertible& value, Error& error) {
     auto defaultValueValue = objectMember(value, "default");
     if (!defaultValueValue) {
         return optional<T>();
@@ -220,7 +220,7 @@ optional<optional<T>> convertDefaultValue(const Value& value, Error& error) {
 
 template <class T>
 struct Converter<SourceFunction<T>> {
-    optional<SourceFunction<T>> operator()(const Value& value, Error& error) const {
+    optional<SourceFunction<T>> operator()(const Convertible& value, Error& error) const {
         if (!isObject(value)) {
             error = { "function must be an object" };
             return {};
@@ -259,7 +259,7 @@ struct CompositeValue : std::pair<float, S> {
 
 template <class S>
 struct Converter<CompositeValue<S>> {
-    optional<CompositeValue<S>> operator()(const Value& value, Error& error) const {
+    optional<CompositeValue<S>> operator()(const Convertible& value, Error& error) const {
         if (!isObject(value)) {
             error = { "stop must be an object" };
             return {};
@@ -295,7 +295,7 @@ template <class T>
 struct Converter<CompositeExponentialStops<T>> {
     static constexpr const char * type = "exponential";
 
-    optional<CompositeExponentialStops<T>> operator()(const Value& value, Error& error) const {
+    optional<CompositeExponentialStops<T>> operator()(const Convertible& value, Error& error) const {
         auto stops = convertStops<CompositeValue<float>, T>(value, error);
         if (!stops) {
             return {};
@@ -320,7 +320,7 @@ template <class T>
 struct Converter<CompositeIntervalStops<T>> {
     static constexpr const char * type = "interval";
 
-    optional<CompositeIntervalStops<T>> operator()(const Value& value, Error& error) const {
+    optional<CompositeIntervalStops<T>> operator()(const Convertible& value, Error& error) const {
         auto stops = convertStops<CompositeValue<float>, T>(value, error);
         if (!stops) {
             return {};
@@ -339,7 +339,7 @@ template <class T>
 struct Converter<CompositeCategoricalStops<T>> {
     static constexpr const char * type = "categorical";
 
-    optional<CompositeCategoricalStops<T>> operator()(const Value& value, Error& error) const {
+    optional<CompositeCategoricalStops<T>> operator()(const Convertible& value, Error& error) const {
         auto stops = convertStops<CompositeValue<CategoricalValue>, T>(value, error);
         if (!stops) {
             return {};
@@ -356,7 +356,7 @@ struct Converter<CompositeCategoricalStops<T>> {
 
 template <class T>
 struct Converter<CompositeFunction<T>> {
-    optional<CompositeFunction<T>> operator()(const Value& value, Error& error) const {
+    optional<CompositeFunction<T>> operator()(const Convertible& value, Error& error) const {
         if (!isObject(value)) {
             error = { "function must be an object" };
             return {};

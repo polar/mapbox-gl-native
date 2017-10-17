@@ -126,7 +126,7 @@ public:
         } else if ([value isKindOfClass:[MGLStyleFunction class]]) {
             mbgl::style::conversion::Error error;
             auto result = mbgl::style::conversion::convert<mbgl::style::DataDrivenPropertyValue<MBGLType>>(
-                mbgl::style::conversion::makeValue(toRawStyleSpecValue((MGLStyleFunction<ObjCType> *) value)), error);
+                mbgl::style::conversion::makeConvertible(toRawStyleSpecValue((MGLStyleFunction<ObjCType> *) value)), error);
             NSCAssert(result, @(error.message.c_str()));
             return *result;
         } else {

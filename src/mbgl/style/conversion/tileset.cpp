@@ -4,7 +4,7 @@ namespace mbgl {
 namespace style {
 namespace conversion {
 
-optional<Tileset> Converter<Tileset>::operator()(const Value& value, Error& error) const {
+optional<Tileset> Converter<Tileset>::operator()(const Convertible& value, Error& error) const {
     Tileset result;
 
     auto tiles = objectMember(value, "tiles");
