@@ -14,24 +14,22 @@ public:
     const id value;
 };
 
-using MGLValue = Holder;
-
-template<> bool ValueTraits<MGLValue>::isUndefined(const MGLValue& holder) {
+template<> bool ValueTraits<Holder>::isUndefined(const Holder& holder) {
     const id value = holder.value;
     return !value || value == [NSNull null];
 }
 
-template<> bool ValueTraits<MGLValue>::isArray(const MGLValue& holder) {
+template<> bool ValueTraits<Holder>::isArray(const Holder& holder) {
     const id value = holder.value;
     return [value isKindOfClass:[NSArray class]];
 }
 
-template<> bool ValueTraits<MGLValue>::isObject(const MGLValue& holder) {
+template<> bool ValueTraits<Holder>::isObject(const Holder& holder) {
     const id value = holder.value;
     return [value isKindOfClass:[NSDictionary class]];
 }
 
-template<> std::size_t ValueTraits<MGLValue>::arrayLength(const MGLValue& holder) {
+template<> std::size_t ValueTraits<Holder>::arrayLength(const Holder& holder) {
     const id value = holder.value;
     NSCAssert([value isKindOfClass:[NSArray class]], @"Value must be an NSArray for getLength().");
     NSArray *array = value;
@@ -40,14 +38,14 @@ template<> std::size_t ValueTraits<MGLValue>::arrayLength(const MGLValue& holder
     return length;
 }
 
-template<> MGLValue ValueTraits<MGLValue>::arrayMember(const MGLValue& holder, std::size_t i) {
+template<> Holder ValueTraits<Holder>::arrayMember(const Holder& holder, std::size_t i) {
     const id value = holder.value;
     NSCAssert([value isKindOfClass:[NSArray class]], @"Value must be an NSArray for get(int).");
     NSCAssert(i < NSUIntegerMax, @"Index must be less than NSUIntegerMax");
     return {[value objectAtIndex: i]};
 }
 
-template<> optional<MGLValue> ValueTraits<MGLValue>::objectMember(const MGLValue& holder, const char *key) {
+template<> optional<Holder> ValueTraits<Holder>::objectMember(const Holder& holder, const char *key) {
     const id value = holder.value;
     NSCAssert([value isKindOfClass:[NSDictionary class]], @"Value must be an NSDictionary for get(string).");
     NSObject *member = [value objectForKey: @(key)];
@@ -58,7 +56,7 @@ template<> optional<MGLValue> ValueTraits<MGLValue>::objectMember(const MGLValue
     }
 }
 
-template<> optional<Error> ValueTraits<MGLValue>::eachMember(const MGLValue& holder, const std::function<optional<Error> (const std::string&, const MGLValue&)>& fn) {
+template<> optional<Error> ValueTraits<Holder>::eachMember(const Holder& holder, const std::function<optional<Error> (const std::string&, const Holder&)>& fn) {
     // Not implemented (unneeded for MGLStyleFunction conversion).
     NSCAssert(NO, @"eachMember not implemented");
     return {};
@@ -81,7 +79,7 @@ inline bool _isString(const id value) {
     return [value isKindOfClass:[NSString class]];
 }
 
-template<> optional<bool> ValueTraits<MGLValue>::toBool(const MGLValue& holder) {
+template<> optional<bool> ValueTraits<Holder>::toBool(const Holder& holder) {
     const id value = holder.value;
     if (_isBool(value)) {
         return ((NSNumber *)value).boolValue;
@@ -90,7 +88,7 @@ template<> optional<bool> ValueTraits<MGLValue>::toBool(const MGLValue& holder) 
     }
 }
 
-template<> optional<float> ValueTraits<MGLValue>::toNumber(const MGLValue& holder) {
+template<> optional<float> ValueTraits<Holder>::toNumber(const Holder& holder) {
     const id value = holder.value;
     if (_isNumber(value)) {
         return ((NSNumber *)value).floatValue;
@@ -99,7 +97,7 @@ template<> optional<float> ValueTraits<MGLValue>::toNumber(const MGLValue& holde
     }
 }
 
-template<> optional<double> ValueTraits<MGLValue>::toDouble(const MGLValue& holder) {
+template<> optional<double> ValueTraits<Holder>::toDouble(const Holder& holder) {
     const id value = holder.value;
     if (_isNumber(value)) {
         return ((NSNumber *)value).doubleValue;
@@ -108,7 +106,7 @@ template<> optional<double> ValueTraits<MGLValue>::toDouble(const MGLValue& hold
     }
 }
 
-template<> optional<std::string> ValueTraits<MGLValue>::toString(const MGLValue& holder) {
+template<> optional<std::string> ValueTraits<Holder>::toString(const Holder& holder) {
     const id value = holder.value;
     if (_isString(value)) {
         return std::string(static_cast<const char *>([value UTF8String]));
@@ -117,7 +115,7 @@ template<> optional<std::string> ValueTraits<MGLValue>::toString(const MGLValue&
     }
 }
 
-template<> optional<mbgl::Value> ValueTraits<MGLValue>::toValue(const MGLValue& holder) {
+template<> optional<mbgl::Value> ValueTraits<Holder>::toValue(const Holder& holder) {
     const id value = holder.value;
     if (isUndefined(value)) {
         return {};
@@ -133,7 +131,7 @@ template<> optional<mbgl::Value> ValueTraits<MGLValue>::toValue(const MGLValue& 
     }
 }
 
-template<> optional<GeoJSON> ValueTraits<MGLValue>::toGeoJSON(const MGLValue& holder, Error& error) {
+template<> optional<GeoJSON> ValueTraits<Holder>::toGeoJSON(const Holder& holder, Error& error) {
     error = { "toGeoJSON not implemented" };
     return {};
 }
