@@ -30,12 +30,6 @@ namespace conversion {
    a filled optional is returned.
 */
 
-namespace detail {
-
-
-} // namespace detail
-
-
 struct Error { std::string message; };
 
 template <typename T>
@@ -88,12 +82,6 @@ class Value {
     };
 
 public:
-    Value(VTable* vt, Storage&& s)
-        : vtable(vt)
-    {
-        vtable->move(std::move(s), this->storage);
-    }
-
     Value(Value&& v)
         : vtable(v.vtable)
     {
