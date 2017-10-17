@@ -33,21 +33,7 @@ namespace conversion {
 struct Error { std::string message; };
 
 template <typename T>
-struct ValueTraits {
-    static bool isUndefined(const T& value);
-    static bool isArray(const T& value);
-    static std::size_t arrayLength(const T& value);
-    static T arrayMember(const T& value, std::size_t i);
-    static bool isObject(const T& value);
-    static optional<T> objectMember(const T& value, const char * name);
-    static optional<Error> eachMember(const T& value, const std::function<optional<Error> (const std::string&, const T&)>& fn);
-    static optional<bool> toBool(const T& value);
-    static optional<float> toNumber(const T& value);
-    static optional<double> toDouble(const T& value);
-    static optional<std::string> toString(const T& value);
-    static optional<mbgl::Value> toValue(const T& value);
-    static optional<GeoJSON> toGeoJSON(const T& value, Error& error);
-};
+class ValueTraits;
 
 class Value {
 public:

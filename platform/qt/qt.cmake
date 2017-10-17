@@ -60,7 +60,6 @@ set(MBGL_QT_FILESOURCE_FILES
 add_library(qmapboxgl SHARED
     platform/qt/include/qmapbox.hpp
     platform/qt/include/qmapboxgl.hpp
-    platform/qt/src/qt_conversion.cpp
     platform/qt/src/qt_conversion.hpp
     platform/qt/src/qt_geojson.cpp
     platform/qt/src/qt_geojson.hpp

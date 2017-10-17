@@ -14,7 +14,6 @@ target_sources(mbgl-node
     PRIVATE platform/node/src/node_logging.hpp
     PRIVATE platform/node/src/node_logging.cpp
     PRIVATE platform/node/src/node_conversion.hpp
-    PRIVATE platform/node/src/node_conversion.cpp
     PRIVATE platform/node/src/node_map.hpp
     PRIVATE platform/node/src/node_map.cpp
     PRIVATE platform/node/src/node_request.hpp
