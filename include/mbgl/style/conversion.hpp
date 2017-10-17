@@ -61,17 +61,26 @@ public:
     Value(Value&& v)
         : vtable(v.vtable)
     {
-        vtable->move(std::move(v.storage), this->storage);
+        if (vtable) {
+            vtable->move(std::move(v.storage), this->storage);
+        }
     }
 
     ~Value() {
-        vtable->destroy(storage);
+        if (vtable) {
+            vtable->destroy(storage);
+        }
     }
 
     Value& operator=(Value&& v) {
-        vtable->destroy(storage);
+        if (vtable) {
+            vtable->destroy(storage);
+        }
         vtable = v.vtable;
-        vtable->move(std::move(v.storage), this->storage);
+        if (vtable) {
+            vtable->move(std::move(v.storage), this->storage);
+        }
+        v.vtable = nullptr;
         return *this;
     }
 
@@ -80,54 +89,67 @@ public:
     Value& operator=(const Value&) = delete;
 
     friend inline bool isUndefined(const Value& v) {
+        assert(v.vtable);
         return v.vtable->isUndefined(v.storage);
     }
 
     friend inline bool isArray(const Value& v) {
+        assert(v.vtable);
         return v.vtable->isArray(v.storage);
     }
 
     friend inline std::size_t arrayLength(const Value& v) {
+        assert(v.vtable);
         return v.vtable->arrayLength(v.storage);
     }
 
     friend inline Value arrayMember(const Value& v, std::size_t i) {
+        assert(v.vtable);
         return v.vtable->arrayMember(v.storage, i);
     }
 
     friend inline bool isObject(const Value& v) {
+        assert(v.vtable);
         return v.vtable->isObject(v.storage);
     }
 
     friend inline optional<Value> objectMember(const Value& v, const char * name) {
+        assert(v.vtable);
         return v.vtable->objectMember(v.storage, name);
     }
 
     friend inline optional<Error> eachMember(const Value& v, const std::function<optional<Error> (const std::string&, const Value&)>& fn) {
+        assert(v.vtable);
         return v.vtable->eachMember(v.storage, fn);
     }
 
     friend inline optional<bool> toBool(const Value& v) {
+        assert(v.vtable);
         return v.vtable->toBool(v.storage);
     }
 
     friend inline optional<float> toNumber(const Value& v) {
+        assert(v.vtable);
         return v.vtable->toNumber(v.storage);
     }
 
     friend inline optional<double> toDouble(const Value& v) {
+        assert(v.vtable);
         return v.vtable->toDouble(v.storage);
     }
 
     friend inline optional<std::string> toString(const Value& v) {
+        assert(v.vtable);
         return v.vtable->toString(v.storage);
     }
 
     friend inline optional<mbgl::Value> toValue(const Value& v) {
+        assert(v.vtable);
         return v.vtable->toValue(v.storage);
     }
 
     friend inline optional<GeoJSON> toGeoJSON(const Value& v, Error& error) {
+        assert(v.vtable);
         return v.vtable->toGeoJSON(v.storage, error);
     }
 
