@@ -54,8 +54,7 @@ public:
     template <typename T>
     Value(const T value) : vtable(vtableForType<T>()) {
         static_assert(sizeof(Storage) >= sizeof(T), "Storage must be large enough to hold value type");
-
-        new (static_cast<void*>(&storage)) const T (value);
+        new (static_cast<void*>(&storage)) T(value);
    }
 
     Value(Value&& v)
@@ -193,7 +192,7 @@ private:
         static Value::VTable vtable = {
             [] (Storage&& src, Storage& dest) {
                 auto srcValue = reinterpret_cast<T&&>(src);
-                new (static_cast<void*>(&dest)) const T (std::move(srcValue));
+                new (static_cast<void*>(&dest)) T(std::move(srcValue));
                 srcValue.~T();
             },
             [] (Storage& s) {
