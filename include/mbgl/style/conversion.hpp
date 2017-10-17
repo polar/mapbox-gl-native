@@ -50,50 +50,19 @@ struct ValueTraits {
 };
 
 class Value {
-    // Node:        JSValue* or v8::Local<v8::Value>
-    // Android:     JSValue* or mbgl::android::Value
-    // iOS/macOS:   JSValue* or id
-    // Qt:          JSValue* or QVariant
-
-    // TODO: use platform-specific size
-    using Storage = std::aligned_storage_t<32, 8>;
-    struct VTable {
-        void (*move) (Storage&& src, Storage& dest);
-        void (*destroy) (Storage&);
-
-        bool (*isUndefined) (const Storage&);
-
-        bool        (*isArray)     (const Storage&);
-        std::size_t (*arrayLength) (const Storage&);
-        Value       (*arrayMember) (const Storage&, std::size_t);
-
-        bool            (*isObject)     (const Storage&);
-        optional<Value> (*objectMember) (const Storage&, const char *);
-        optional<Error> (*eachMember)   (const Storage&, const std::function<optional<Error> (const std::string&, const Value&)>&);
-
-        optional<bool>        (*toBool)   (const Storage&);
-        optional<float>       (*toNumber) (const Storage&);
-        optional<double>      (*toDouble) (const Storage&);
-        optional<std::string> (*toString) (const Storage&);
-        optional<mbgl::Value> (*toValue)  (const Storage&);
-
-        // https://github.com/mapbox/mapbox-gl-native/issues/5623
-        optional<GeoJSON> (*toGeoJSON) (const Storage&, Error&);
-    };
-
 public:
-    Value(Value&& v)
-        : vtable(v.vtable)
-    {
-        vtable->move(std::move(v.storage), this->storage);
-    }
-
     template <typename T>
     Value(const T value) : vtable(vtableForType<T>()) {
         static_assert(sizeof(Storage) >= sizeof(T), "Storage must be large enough to hold value type");
 
         new (static_cast<void*>(&storage)) const T (value);
    }
+
+    Value(Value&& v)
+        : vtable(v.vtable)
+    {
+        vtable->move(std::move(v.storage), this->storage);
+    }
 
     ~Value() {
         vtable->destroy(storage);
@@ -163,6 +132,38 @@ public:
     }
 
 private:
+    // Node:        JSValue* or v8::Local<v8::Value>
+    // Android:     JSValue* or mbgl::android::Value
+    // iOS/macOS:   JSValue* or id
+    // Qt:          JSValue* or QVariant
+
+    // TODO: use platform-specific size
+    using Storage = std::aligned_storage_t<32, 8>;
+
+    struct VTable {
+        void (*move) (Storage&& src, Storage& dest);
+        void (*destroy) (Storage&);
+
+        bool (*isUndefined) (const Storage&);
+
+        bool        (*isArray)     (const Storage&);
+        std::size_t (*arrayLength) (const Storage&);
+        Value       (*arrayMember) (const Storage&, std::size_t);
+
+        bool            (*isObject)     (const Storage&);
+        optional<Value> (*objectMember) (const Storage&, const char *);
+        optional<Error> (*eachMember)   (const Storage&, const std::function<optional<Error> (const std::string&, const Value&)>&);
+
+        optional<bool>        (*toBool)   (const Storage&);
+        optional<float>       (*toNumber) (const Storage&);
+        optional<double>      (*toDouble) (const Storage&);
+        optional<std::string> (*toString) (const Storage&);
+        optional<mbgl::Value> (*toValue)  (const Storage&);
+
+        // https://github.com/mapbox/mapbox-gl-native/issues/5623
+        optional<GeoJSON> (*toGeoJSON) (const Storage&, Error&);
+    };
+
     template <typename T>
     static VTable* vtableForType() {
         using Traits = ValueTraits<T>;
@@ -173,7 +174,9 @@ private:
                 new (static_cast<void*>(&dest)) const T (std::move(srcValue));
                 srcValue.~T();
             },
-            [] (Storage& s) { reinterpret_cast<T&>(s).~T(); },
+            [] (Storage& s) {
+                reinterpret_cast<T&>(s).~T();
+            },
             [] (const Storage& s) {
                 return Traits::isUndefined(reinterpret_cast<const T&>(s));
             },
