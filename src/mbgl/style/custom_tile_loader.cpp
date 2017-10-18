@@ -10,9 +10,7 @@ CustomTileLoader::CustomTileLoader(const TileFunction& fetchTileFn, const TileFu
 
 void CustomTileLoader::fetchTile(const OverscaledTileID& tileID, ActorRef<SetTileDataFunction> callbackRef) {
     auto cachedTileData = dataCache.find(tileID.canonical);
-    if (cachedTileData == dataCache.end()) {
-        invokeTileFetch(tileID.canonical);
-    } else {
+    if (cachedTileData != dataCache.end()) {
         callbackRef.invoke(&SetTileDataFunction::operator(), *(cachedTileData->second));
     }
     auto tileCallbacks = tileCallbackMap.find(tileID.canonical);
@@ -27,6 +25,9 @@ void CustomTileLoader::fetchTile(const OverscaledTileID& tileID, ActorRef<SetTil
             }
         }
         tileCallbacks->second.emplace_back(std::make_tuple(tileID.overscaledZ, tileID.wrap, callbackRef));
+    }
+    if (cachedTileData == dataCache.end()) {
+        invokeTileFetch(tileID.canonical);
     }
 }
 

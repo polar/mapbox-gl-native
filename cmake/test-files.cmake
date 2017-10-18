@@ -16,6 +16,7 @@ set(MBGL_TEST_FILES
     test/api/annotations.test.cpp
     test/api/api_misuse.test.cpp
     test/api/custom_layer.test.cpp
+    test/api/custom_vector_source.test.cpp
     test/api/query.test.cpp
     test/api/recycle_map.cpp
     test/api/zoom_history.cpp
