@@ -4,6 +4,10 @@
 
 #import <mbgl/util/projection.hpp>
 
+#if !TARGET_OS_IPHONE && !TARGET_OS_SIMULATOR
+#import <Cocoa/Cocoa.h>
+#endif
+
 /** Vertical field of view, measured in degrees, for determining the altitude
     of the viewpoint.
 
@@ -59,6 +63,10 @@ double MGLZoomLevelForAltitude(CLLocationDistance altitude, CGFloat pitch, CLLoc
 }
 
 CGPoint MGLPointRounded(CGPoint point) {
-    CGFloat scale = [UIScreen mainScreen].scale;
-    return CGPointMake(round(point.x * scale) / scale, round(point.y * scale) / scale);
+#if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
+    CGFloat scaleFactor = [UIScreen instancesRespondToSelector:@selector(nativeScale)] ? [UIScreen mainScreen].nativeScale : [UIScreen mainScreen].scale;
+#elif TARGET_OS_MAC
+    CGFloat scaleFactor = [NSScreen mainScreen].backingScaleFactor;
+#endif
+    return CGPointMake(round(point.x * scaleFactor) / scaleFactor, round(point.y * scaleFactor) / scaleFactor);
 }
