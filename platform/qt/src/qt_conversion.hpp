@@ -59,7 +59,7 @@ public:
         auto iter = map.constBegin();
 
         while (iter != map.constEnd()) {
-            optional<Error> result = fn(iter.key().toStdString(), iter.value());
+            optional<Error> result = fn(iter.key().toStdString(), QVariant(iter.value()));
             if (result) {
                 return result;
             }
