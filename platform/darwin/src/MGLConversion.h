@@ -58,7 +58,12 @@ public:
         }
     }
 
-    static optional<Error> eachMember(const Holder& holder, const std::function<optional<Error> (const std::string&, const Holder&)>& fn) {
+// Compiler is wrong about `Fn` parameter missing a nullability specifier.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-completeness"
+    template <class Fn>
+    static optional<Error> eachMember(const Holder&, Fn&&) {
+#pragma clang diagnostic pop
         // Not implemented (unneeded for MGLStyleFunction conversion).
         NSCAssert(NO, @"eachMember not implemented");
         return {};

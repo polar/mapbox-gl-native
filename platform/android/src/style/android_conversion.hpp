@@ -46,7 +46,8 @@ public:
         }
     }
 
-    static optional<Error> eachMember(const mbgl::android::Value&, const std::function<optional<Error> (const std::string&, const mbgl::android::Value&)>&) {
+    template <class Fn>
+    static optional<Error> eachMember(const mbgl::android::Value&, Fn&&) {
         // TODO
         mbgl::Log::Warning(mbgl::Event::Android, "eachMember not implemented");
         return {};

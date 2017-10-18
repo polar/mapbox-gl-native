@@ -41,7 +41,8 @@ public:
         return {member};
     }
 
-    static optional<Error> eachMember(const JSValue* value, const std::function<optional<Error> (const std::string&, const JSValue* const&)>& fn) {
+    template <class Fn>
+    static optional<Error> eachMember(const JSValue* value, Fn&& fn) {
         assert(value->IsObject());
         for (const auto& property : value->GetObject()) {
             optional<Error> result =

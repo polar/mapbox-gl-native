@@ -53,9 +53,8 @@ public:
         }
     }
 
-    using EachMemberFn = std::function<optional<Error>(const std::string&, const QVariant&)>;
-
-    static optional<Error> eachMember(const QVariant& value, const EachMemberFn& fn) {
+    template <class Fn>
+    static optional<Error> eachMember(const QVariant& value, Fn&& fn) {
         auto map = value.toMap();
         auto iter = map.constBegin();
 

@@ -59,7 +59,8 @@ public:
         return {scope.Escape(result.ToLocalChecked())};
     }
 
-    static optional<Error> eachMember(const v8::Local<v8::Value>& value, const std::function<optional<Error> (const std::string&, const v8::Local<v8::Value>&)>& fn) {
+    template <class Fn>
+    static optional<Error> eachMember(const v8::Local<v8::Value>& value, Fn&& fn) {
         Nan::HandleScope scope;
         v8::Local<v8::Array> names = Nan::GetOwnPropertyNames(Nan::To<v8::Object>(value).ToLocalChecked()).ToLocalChecked();
         for (uint32_t i = 0; i < names->Length(); ++i) {
