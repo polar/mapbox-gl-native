@@ -45,7 +45,7 @@ void CustomTile::setNecessity(Necessity newNecessity) {
         necessity = newNecessity;
         if (necessity == Necessity::Required) {
             loader.invoke(&style::CustomTileLoader::fetchTile, id, actor.self());
-        } else if(!isRenderable()) {
+        } else if (!isRenderable()) {
             loader.invoke(&style::CustomTileLoader::cancelTile, id);
         }
     }

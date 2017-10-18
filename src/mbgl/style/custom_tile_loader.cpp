@@ -19,10 +19,9 @@ void CustomTileLoader::fetchTile(const OverscaledTileID& tileID, ActorRef<SetTil
     if (tileCallbacks == tileCallbackMap.end()) {
         auto tuple = std::make_tuple(tileID.overscaledZ, tileID.wrap, callbackRef);
         tileCallbackMap.insert({ tileID.canonical, std::vector<OverscaledIDFunctionTuple>(1, tuple) });
-    }
-    else {
-        for(auto iter = tileCallbacks->second.begin(); iter != tileCallbacks->second.end(); iter++) {
-            if(std::get<0>(*iter) == tileID.overscaledZ && std::get<1>(*iter) == tileID.wrap ) {
+    } else {
+        for (auto iter = tileCallbacks->second.begin(); iter != tileCallbacks->second.end(); iter++) {
+            if (std::get<0>(*iter) == tileID.overscaledZ && std::get<1>(*iter) == tileID.wrap ) {
                 std::get<2>(*iter) = callbackRef;
                 return;
             }
@@ -32,7 +31,7 @@ void CustomTileLoader::fetchTile(const OverscaledTileID& tileID, ActorRef<SetTil
 }
 
 void CustomTileLoader::cancelTile(const OverscaledTileID& tileID) {
-    if(tileCallbackMap.find(tileID.canonical) != tileCallbackMap.end()) {
+    if (tileCallbackMap.find(tileID.canonical) != tileCallbackMap.end()) {
         invokeTileCancel(tileID.canonical);
     }
 }
@@ -40,8 +39,8 @@ void CustomTileLoader::cancelTile(const OverscaledTileID& tileID) {
 void CustomTileLoader::removeTile(const OverscaledTileID& tileID) {
     auto tileCallbacks = tileCallbackMap.find(tileID.canonical);
     if (tileCallbacks == tileCallbackMap.end()) return;
-    for(auto iter = tileCallbacks->second.begin(); iter != tileCallbacks->second.end(); iter++) {
-        if(std::get<0>(*iter) == tileID.overscaledZ && std::get<1>(*iter) == tileID.wrap ) {
+    for (auto iter = tileCallbacks->second.begin(); iter != tileCallbacks->second.end(); iter++) {
+        if (std::get<0>(*iter) == tileID.overscaledZ && std::get<1>(*iter) == tileID.wrap ) {
             tileCallbacks->second.erase(iter);
             break;
         }
@@ -56,7 +55,7 @@ void CustomTileLoader::setTileData(const CanonicalTileID& tileID, const GeoJSON&
     auto iter = tileCallbackMap.find(tileID);
     if (iter == tileCallbackMap.end()) return;
     dataCache[tileID] = std::make_unique<mapbox::geojson::geojson>(std::move(data));
-    for(auto tuple : iter->second) {
+    for (auto tuple : iter->second) {
         auto actor = std::get<2>(tuple);
         actor.invoke(&SetTileDataFunction::operator(), data);
     }
