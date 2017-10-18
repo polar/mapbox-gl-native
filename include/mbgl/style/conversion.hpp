@@ -186,13 +186,17 @@ public:
     }
 
 private:
-    // Node:        JSValue* or v8::Local<v8::Value>
+#if __ANDROID__
     // Android:     JSValue* or mbgl::android::Value
-    // iOS/macOS:   JSValue* or id
-    // Qt:          JSValue* or QVariant
-
-    // TODO: use platform-specific size
     using Storage = std::aligned_storage_t<32, 8>;
+#elif __QT__
+    // Qt:          JSValue* or QVariant
+    using Storage = std::aligned_storage_t<32, 8>;
+#else
+    // Node:        JSValue* or v8::Local<v8::Value>
+    // iOS/macOS:   JSValue* or id
+    using Storage = std::aligned_storage_t<8, 8>;
+#endif
 
     struct VTable {
         void (*move) (Storage&& src, Storage& dest);
