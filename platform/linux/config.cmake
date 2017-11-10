@@ -192,3 +192,9 @@ endmacro()
 macro(mbgl_platform_node)
     # Enabling node module by defining this macro
 endmacro()
+
+macro(mblg_render_zxy)
+endmacro()
+
+macro(alk_rts)
+endmacro()

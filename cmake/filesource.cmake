@@ -36,6 +36,7 @@ set_xcode_property(mbgl-filesource GCC_SYMBOLS_PRIVATE_EXTERN YES)
 target_compile_options(mbgl-filesource
     PRIVATE -fPIC
     PRIVATE -fvisibility-inlines-hidden
+    PRIVATE -ggdb
 )
 
 target_include_directories(mbgl-filesource

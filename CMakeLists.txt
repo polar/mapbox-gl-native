@@ -6,7 +6,7 @@ include(cmake/mbgl.cmake)
 include(cmake/mason.cmake)
 include(cmake/xcode.cmake)
 
-option(WITH_CXX11ABI "Use cxx11abi mason packages" OFF)
+option(WITH_CXX11ABI "Use cxx11abi mason packages" ON)
 option(WITH_COVERAGE "Enable coverage reports" OFF)
 option(WITH_OSMESA   "Use OSMesa headless backend" OFF)
 option(WITH_EGL      "Use EGL backend" OFF)
@@ -154,12 +154,20 @@ if(COMMAND mbgl_platform_render)
     include(cmake/render.cmake)
 endif()
 
+if(COMMAND mbgl_platform_render_zxy)
+    include(cmake/render-zxy.cmake)
+endif()
+
 if(COMMAND mbgl_platform_offline)
     include(cmake/offline.cmake)
 endif()
 
 if(COMMAND mbgl_platform_node)
     include(cmake/node.cmake)
+endif()
+
+if(COMMAND alk_rts)
+    include(cmake/alk-rts.cmake)
 endif()
 
 if(CMAKE_GENERATOR STREQUAL "Xcode")

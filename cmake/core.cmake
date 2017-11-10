@@ -5,6 +5,7 @@ add_library(mbgl-core STATIC
 target_compile_options(mbgl-core
     PRIVATE -fPIC
     PRIVATE -fvisibility-inlines-hidden
+    PRIVATE -ggdb
 )
 
 target_include_directories(mbgl-core
