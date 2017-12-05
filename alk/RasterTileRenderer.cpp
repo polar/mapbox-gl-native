@@ -50,7 +50,7 @@ RasterTileRenderer::RasterTileRenderer(
 					pixelRatio,
 					fileSource,
 					this->threadPool,
-					mbgl::MapMode::Still) {
+					mbgl::MapMode::Static) {
 
     if (styleUrl.find("://") == std::string::npos) {
     	styleUrl = std::string("file://") + styleUrl;
