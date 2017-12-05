@@ -11,6 +11,7 @@ namespace alk {
 class Frontend : public mbgl::HeadlessFrontend {
 public:
 	Frontend(mbgl::Size size_, float pixelRatio_, mbgl::FileSource& fileSource_, mbgl::Scheduler& scheduler_);
+	~Frontend();
 	void render(mbgl::Map& map, std::function<void (const mbgl::PremultipliedImage)> callback);
 };
 

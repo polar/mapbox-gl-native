@@ -37,11 +37,13 @@ class TileHandlerFactory : public RequestHandlerFactory {
 	TileHandlerFactory(std::map<std::thread::id, Entry *>& renderers_,
 			std::string styleUrl_,
 			RenderCache& rasterCache_,
-			mbgl::DefaultFileSource& vectorCache_) :
+			mbgl::DefaultFileSource& vectorCache_,
+			int renderThreads_) :
 			styleUrl(styleUrl_),
 		    renderers(renderers_),
 			rasterCache(rasterCache_),
-			vectorCache(vectorCache_) {}
+			vectorCache(vectorCache_),
+			renderThreads(renderThreads_){}
   void onServerStart(folly::EventBase* /*evb*/) noexcept override {
   }
 
@@ -57,11 +59,12 @@ class TileHandlerFactory : public RequestHandlerFactory {
 		  entry->renderer = new RasterTileRenderer(styleUrl,
 				  512,
 				  512,
-				  2.0,
+				  1.0,
 				  0.0,
 				  0.0,
 				  rasterCache,
-				  vectorCache);
+				  vectorCache,
+				  this->renderThreads);
 		  renderers[tid] = entry;
 	  }
     return new TileHandler(entry->loop, entry->renderer);
@@ -72,6 +75,7 @@ class TileHandlerFactory : public RequestHandlerFactory {
   std::map<std::thread::id, Entry *>& renderers;
   RenderCache& rasterCache;
   mbgl::DefaultFileSource& vectorCache;
+  int renderThreads;
 };
 
 int main(int argc, char* argv[]) {
@@ -126,7 +130,7 @@ int main(int argc, char* argv[]) {
   options.shutdownOn = {SIGINT, SIGTERM};
   options.enableContentCompression = false;
   options.handlerFactories = RequestHandlerChain()
-      .addThen<TileHandlerFactory>(renderers, style_url, rasterCache, vectorCache)
+      .addThen<TileHandlerFactory>(renderers, style_url, rasterCache, vectorCache, render_threads)
       .build();
   options.h2cEnabled = true;
 

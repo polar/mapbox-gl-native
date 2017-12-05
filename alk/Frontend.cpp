@@ -6,6 +6,7 @@
 #include <mbgl/map/transform_state.hpp>
 #include <mbgl/util/run_loop.hpp>
 #include <mbgl/storage/file_source.hpp>
+#include <iostream>
 #include "Frontend.hpp"
 
 namespace alk {
@@ -13,6 +14,10 @@ namespace alk {
 Frontend::Frontend(mbgl::Size size_, float pixelRatio_, mbgl::FileSource& fileSource_, mbgl::Scheduler& scheduler_) :
     mbgl::HeadlessFrontend(size_, pixelRatio_, fileSource_, scheduler_) {
 
+}
+
+Frontend::~Frontend() {
+	std::cout << "Frontend Gone!";
 }
 
 void Frontend::render(mbgl::Map& map, std::function<void (const mbgl::PremultipliedImage)> callback) {

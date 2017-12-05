@@ -293,6 +293,33 @@ alk/Frontend.cpp.s:
 	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/Frontend.cpp.s
 .PHONY : alk/Frontend.cpp.s
 
+alk/Map.o: alk/Map.cpp.o
+
+.PHONY : alk/Map.o
+
+# target to build an object file
+alk/Map.cpp.o:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/Map.cpp.o
+.PHONY : alk/Map.cpp.o
+
+alk/Map.i: alk/Map.cpp.i
+
+.PHONY : alk/Map.i
+
+# target to preprocess a source file
+alk/Map.cpp.i:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/Map.cpp.i
+.PHONY : alk/Map.cpp.i
+
+alk/Map.s: alk/Map.cpp.s
+
+.PHONY : alk/Map.s
+
+# target to generate assembly for a file
+alk/Map.cpp.s:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/Map.cpp.s
+.PHONY : alk/Map.cpp.s
+
 alk/RasterTileRenderer.o: alk/RasterTileRenderer.cpp.o
 
 .PHONY : alk/RasterTileRenderer.o
@@ -10306,6 +10333,9 @@ help:
 	@echo "... alk/Frontend.o"
 	@echo "... alk/Frontend.i"
 	@echo "... alk/Frontend.s"
+	@echo "... alk/Map.o"
+	@echo "... alk/Map.i"
+	@echo "... alk/Map.s"
 	@echo "... alk/RasterTileRenderer.o"
 	@echo "... alk/RasterTileRenderer.i"
 	@echo "... alk/RasterTileRenderer.s"

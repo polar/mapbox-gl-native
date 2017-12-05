@@ -16,6 +16,8 @@ target_sources(alk-rts
     PRIVATE alk/TileServer.cpp
     PRIVATE alk/Frontend.hpp
     PRIVATE alk/Frontend.cpp
+    PRIVATE alk/Map.hpp
+    PRIVATE alk/Map.cpp
     PRIVATE alk/RenderCache.hpp
     PRIVATE alk/RenderCache.cpp
 )

@@ -27,7 +27,8 @@ public:
 			double bearing_,
 			double pitch_,
 			RenderCache& renderCache_,
-			mbgl::FileSource& fileSource_);
+			mbgl::FileSource& fileSource_,
+			int renderThreads_);
 	void renderTile(TilePath *path, std::function<void (const std::string data)> callback);
 	double getPixelRatio();
 	double getBearing();

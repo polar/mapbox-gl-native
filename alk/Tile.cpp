@@ -14,7 +14,8 @@ namespace alk {
 Tile::Tile(TilePath* path_) : mbgl::Tile(mbgl::OverscaledTileID(path_->zoom, path_->x, path_->y)), path(path_) {}
 
 Tile::~Tile() {
-	std::cout << "Tile " << path->to_s() << " deleted" << std::endl;
+	//std::cout << "Tile " << path->to_s() << " deleted. data.use_count = " <<
+	//		data.use_count() << "." << std::endl;
 }
 
 void Tile::cancel() {
