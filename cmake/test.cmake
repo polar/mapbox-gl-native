@@ -8,10 +8,6 @@ else()
     )
 endif()
 
-target_compile_options(mbgl-test
-    PRIVATE -fvisibility-inlines-hidden
-)
-
 set_source_files_properties(test/src/mbgl/test/util.cpp PROPERTIES COMPILE_FLAGS -DNODE_EXECUTABLE="${NodeJS_EXECUTABLE}")
 
 target_include_directories(mbgl-test
@@ -27,7 +23,6 @@ target_link_libraries(mbgl-test
 
 target_add_mason_package(mbgl-test PRIVATE geometry)
 target_add_mason_package(mbgl-test PRIVATE variant)
-target_add_mason_package(mbgl-test PRIVATE any)
 target_add_mason_package(mbgl-test PRIVATE unique_resource)
 target_add_mason_package(mbgl-test PRIVATE rapidjson)
 target_add_mason_package(mbgl-test PRIVATE gtest)

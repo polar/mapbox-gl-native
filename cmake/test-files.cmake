@@ -15,6 +15,7 @@ set(MBGL_TEST_FILES
     # api
     test/api/annotations.test.cpp
     test/api/api_misuse.test.cpp
+    test/api/custom_geometry_source.test.cpp
     test/api/custom_layer.test.cpp
     test/api/query.test.cpp
     test/api/recycle_map.cpp
@@ -22,8 +23,8 @@ set(MBGL_TEST_FILES
 
     # gl
     test/gl/bucket.test.cpp
-    test/gl/object.test.cpp
     test/gl/context.test.cpp
+    test/gl/object.test.cpp
 
     # include/mbgl
     test/include/mbgl/test.hpp
@@ -88,6 +89,10 @@ set(MBGL_TEST_FILES
     test/style/conversion/light.test.cpp
     test/style/conversion/stringify.test.cpp
 
+    # style/expression
+    test/style/expression/expression.test.cpp
+    test/style/expression/util.test.cpp
+
     # style
     test/style/filter.test.cpp
 
@@ -107,12 +112,13 @@ set(MBGL_TEST_FILES
     test/style/style_parser.test.cpp
 
     # text
+    test/text/cross_tile_symbol_index.test.cpp
     test/text/glyph_loader.test.cpp
     test/text/glyph_pbf.test.cpp
     test/text/quads.test.cpp
 
     # tile
-    test/tile/annotation_tile.test.cpp
+    test/tile/custom_geometry_tile.test.cpp
     test/tile/geojson_tile.test.cpp
     test/tile/geometry_tile_data.test.cpp
     test/tile/raster_tile.test.cpp
@@ -124,6 +130,7 @@ set(MBGL_TEST_FILES
     test/util/async_task.test.cpp
     test/util/dtoa.test.cpp
     test/util/geo.test.cpp
+    test/util/grid_index.test.cpp
     test/util/http_timeout.test.cpp
     test/util/image.test.cpp
     test/util/mapbox.test.cpp
@@ -140,5 +147,6 @@ set(MBGL_TEST_FILES
     test/util/tile_cover.test.cpp
     test/util/timer.test.cpp
     test/util/token.test.cpp
+    test/util/unique_any.test.cpp
     test/util/url.test.cpp
 )
