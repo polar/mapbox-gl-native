@@ -5,6 +5,10 @@ add_executable(alk-rts
 target_sources(alk-rts
     PRIVATE alk/RasterTileRenderer.cpp
     PRIVATE alk/RasterTileRenderer.hpp
+    PRIVATE alk/MbTilesDatabase.cpp
+    PRIVATE alk/MbTilesDatabase.hpp
+    PRIVATE alk/MbTilesFileSource.cpp
+    PRIVATE alk/MbTilesFileSource.hpp
     PRIVATE alk/Tile.cpp
     PRIVATE alk/Tile.hpp
     PRIVATE alk/TileHandler.cpp

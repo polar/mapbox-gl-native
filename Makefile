@@ -320,6 +320,60 @@ alk/Map.cpp.s:
 	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/Map.cpp.s
 .PHONY : alk/Map.cpp.s
 
+alk/MbTilesDatabase.o: alk/MbTilesDatabase.cpp.o
+
+.PHONY : alk/MbTilesDatabase.o
+
+# target to build an object file
+alk/MbTilesDatabase.cpp.o:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/MbTilesDatabase.cpp.o
+.PHONY : alk/MbTilesDatabase.cpp.o
+
+alk/MbTilesDatabase.i: alk/MbTilesDatabase.cpp.i
+
+.PHONY : alk/MbTilesDatabase.i
+
+# target to preprocess a source file
+alk/MbTilesDatabase.cpp.i:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/MbTilesDatabase.cpp.i
+.PHONY : alk/MbTilesDatabase.cpp.i
+
+alk/MbTilesDatabase.s: alk/MbTilesDatabase.cpp.s
+
+.PHONY : alk/MbTilesDatabase.s
+
+# target to generate assembly for a file
+alk/MbTilesDatabase.cpp.s:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/MbTilesDatabase.cpp.s
+.PHONY : alk/MbTilesDatabase.cpp.s
+
+alk/MbTilesFileSource.o: alk/MbTilesFileSource.cpp.o
+
+.PHONY : alk/MbTilesFileSource.o
+
+# target to build an object file
+alk/MbTilesFileSource.cpp.o:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/MbTilesFileSource.cpp.o
+.PHONY : alk/MbTilesFileSource.cpp.o
+
+alk/MbTilesFileSource.i: alk/MbTilesFileSource.cpp.i
+
+.PHONY : alk/MbTilesFileSource.i
+
+# target to preprocess a source file
+alk/MbTilesFileSource.cpp.i:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/MbTilesFileSource.cpp.i
+.PHONY : alk/MbTilesFileSource.cpp.i
+
+alk/MbTilesFileSource.s: alk/MbTilesFileSource.cpp.s
+
+.PHONY : alk/MbTilesFileSource.s
+
+# target to generate assembly for a file
+alk/MbTilesFileSource.cpp.s:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/MbTilesFileSource.cpp.s
+.PHONY : alk/MbTilesFileSource.cpp.s
+
 alk/RasterTileRenderer.o: alk/RasterTileRenderer.cpp.o
 
 .PHONY : alk/RasterTileRenderer.o
@@ -11308,6 +11362,12 @@ help:
 	@echo "... alk/Map.o"
 	@echo "... alk/Map.i"
 	@echo "... alk/Map.s"
+	@echo "... alk/MbTilesDatabase.o"
+	@echo "... alk/MbTilesDatabase.i"
+	@echo "... alk/MbTilesDatabase.s"
+	@echo "... alk/MbTilesFileSource.o"
+	@echo "... alk/MbTilesFileSource.i"
+	@echo "... alk/MbTilesFileSource.s"
 	@echo "... alk/RasterTileRenderer.o"
 	@echo "... alk/RasterTileRenderer.i"
 	@echo "... alk/RasterTileRenderer.s"

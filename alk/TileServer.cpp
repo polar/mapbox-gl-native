@@ -9,6 +9,8 @@
 #include <mbgl/storage/default_file_source.hpp>
 #include <mbgl/actor/scheduler.hpp>
 #include <map>
+#include <thread>
+#include <mutex>
 
 #include <boost/program_options.hpp>
 
@@ -32,14 +34,18 @@ public:
 	RasterTileRenderer * renderer;
 };
 
+std::mutex g_gl_render_mutex;
+
 class TileHandlerFactory : public RequestHandlerFactory {
  public:
 	TileHandlerFactory(std::map<std::thread::id, Entry *>& renderers_,
 			std::string styleUrl_,
+			unsigned int tileSize_,
 			RenderCache& rasterCache_,
 			mbgl::DefaultFileSource& vectorCache_,
 			int renderThreads_) :
 			styleUrl(styleUrl_),
+			tileSize(tileSize_),
 		    renderers(renderers_),
 			rasterCache(rasterCache_),
 			vectorCache(vectorCache_),
@@ -57,13 +63,14 @@ class TileHandlerFactory : public RequestHandlerFactory {
 		  entry = new Entry();
 		  entry->loop = new mbgl::util::RunLoop(mbgl::util::RunLoop::Type::New);
 		  entry->renderer = new RasterTileRenderer(styleUrl,
-				  512,
-				  512,
-				  1.0,
+				  tileSize,
+				  tileSize,
+				  tileSize < 512 ? 1.0 : 2.0, // pixelRatio
 				  0.0,
 				  0.0,
 				  rasterCache,
 				  vectorCache,
+				  g_gl_render_mutex,
 				  this->renderThreads);
 		  renderers[tid] = entry;
 	  }
@@ -72,6 +79,7 @@ class TileHandlerFactory : public RequestHandlerFactory {
 
  private:
   std::string styleUrl;
+  unsigned int tileSize;
   std::map<std::thread::id, Entry *>& renderers;
   RenderCache& rasterCache;
   mbgl::DefaultFileSource& vectorCache;
@@ -80,7 +88,7 @@ class TileHandlerFactory : public RequestHandlerFactory {
 
 int main(int argc, char* argv[]) {
 	std::string style_url;
-	unsigned int server_threads = 4;
+	unsigned int server_threads = 1;
 	unsigned int render_threads = 4;
 	std::string raster_cache_file = "raster.cache";
 	std::string vector_cache_file = "vector.cache";
@@ -88,11 +96,13 @@ int main(int argc, char* argv[]) {
 	unsigned int raster_cache_limit = 1024;
 	unsigned int vector_cache_limit = 1024;
 	unsigned int http_port = 11000;
+	unsigned int tile_size = 512;
 	std::string bind_address = "0.0.0.0";
 
     po::options_description desc("Allowed options");
     desc.add_options()
 		("style,s", po::value(&style_url)->required()->value_name("url"), "Mapbox Stylesheet URL")
+		("tile-size,z", po::value(&tile_size)->value_name("integer")->default_value(512), "TileSize (256,512)")
 		("port,p", po::value(&http_port)->value_name("integer")->default_value(http_port), "Http Port")
 		("bind,b", po::value(&bind_address)->value_name("IP Address")->default_value(bind_address), "IP Address to which to bind server.")
 		("server-threads,t", po::value(&server_threads)->value_name("integer")->default_value(server_threads), "Number of Server Threads")
@@ -108,6 +118,9 @@ int main(int argc, char* argv[]) {
         po::variables_map vm;
         po::store(po::parse_command_line(argc, argv, desc), vm);
         po::notify(vm);
+        if (tile_size != 256 && tile_size != 512) {
+        	throw std::runtime_error("Tile Size must be 256 or 512");
+        }
     } catch(std::exception& e) {
         std::cout << "Error: " << e.what() << std::endl << desc;
         exit(1);
@@ -130,7 +143,7 @@ int main(int argc, char* argv[]) {
   options.shutdownOn = {SIGINT, SIGTERM};
   options.enableContentCompression = false;
   options.handlerFactories = RequestHandlerChain()
-      .addThen<TileHandlerFactory>(renderers, style_url, rasterCache, vectorCache, render_threads)
+      .addThen<TileHandlerFactory>(renderers, style_url, tile_size, rasterCache, vectorCache, render_threads)
       .build();
   options.h2cEnabled = true;
 

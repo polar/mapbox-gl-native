@@ -3,6 +3,8 @@
 #include <mbgl/util/run_loop.hpp>
 #include <mbgl/util/default_thread_pool.hpp>
 #include <mbgl/storage/file_source.hpp>
+#include <thread>
+#include <mutex>
 
 #include <cstdlib>
 #include <iostream>
@@ -17,6 +19,17 @@
 
 namespace alk {
 
+struct RenderStats {
+	std::chrono::steady_clock::time_point renderStartTime;
+	std::chrono::duration<double, std::milli> renderingCurrentTotalDuration;
+	std::chrono::duration<double, std::milli> minimumRenderDuration;
+	TilePath              mimimumRenderTilePath;
+	std::chrono::duration<double, std::milli> maximumRenderDuration;
+	TilePath              maximumRenderTilePath;
+	std::chrono::duration<double, std::milli> encodingCurrentTotalDuration;
+	unsigned long long numberOfRequests;
+};
+
 class RasterTileRenderer {
 public:
 	explicit RasterTileRenderer(
@@ -28,6 +41,7 @@ public:
 			double pitch_,
 			RenderCache& renderCache_,
 			mbgl::FileSource& fileSource_,
+			std::mutex& renderMutex_,
 			int renderThreads_);
 	void renderTile(TilePath *path, std::function<void (const std::string data)> callback);
 	double getPixelRatio();
@@ -35,6 +49,7 @@ public:
 	double getPitch();
 	RenderCache& getRenderCache();
 	mbgl::FileSource& getFileSource();
+	RenderStats& getRenderStats();
 
 protected:
 	std::string styleUrl;
@@ -47,8 +62,10 @@ protected:
 private:
     RenderCache& renderCache;
     mbgl::FileSource& fileSource;
+    std::mutex& renderMutex;
     mbgl::ThreadPool threadPool;
     Frontend frontend;
     mbgl::Map map;
+    RenderStats renderStats;
 };
 };
