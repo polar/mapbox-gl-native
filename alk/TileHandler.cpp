@@ -31,10 +31,12 @@ void TileHandler::onRequest(std::unique_ptr<HTTPMessage>  headers ) noexcept {
   std::cout << url_.getUrl() << std::endl;
   std::string path = url_.getPath();
   std::smatch m;
+  // Try to match /data/{z}/{x}/{y}.png
   std::regex pathMatch("/([^/]*)/([0-9]+)/([0-9]+)/([0-9]+)(.(png|jpg))?");
   if (std::regex_match(path, m, pathMatch)) {
 	  tilePath_ = new TilePath(m[1],m[2],m[3],m[4],m[6]);
   } else {
+	  // This approach matches ALK style /data?x={x}&y={y}&z={z}
 	  auto q = url_.getQuery();
 	  std::string x,y,z;
 	  if(std::regex_search(q, m, std::regex("x=([0-9]+)"))) {
@@ -47,8 +49,10 @@ void TileHandler::onRequest(std::unique_ptr<HTTPMessage>  headers ) noexcept {
 		  z = m[1];
 	  }
 	  if (x != "" && y != "" && z != "") {
+		  // We always assume png here.
 		  tilePath_ = new TilePath(url_.getPath(), z, x, y, "png");
 	  } else {
+		  // tilePath_ is null
 	  }
   }
 }
@@ -67,7 +71,6 @@ void TileHandler::onEOM() noexcept {
 	  TileLoader loader(tilePath_, rasterTileRenderer);
 	  pending = true;
 	  loader.load([this, &resp] (Tile& tile) {
-		  std::cout << "Got from loader Tile " << std::endl;
 		  try {
 			  if (tile.data) {
 				  resp.status(200, "OK");
@@ -75,11 +78,14 @@ void TileHandler::onEOM() noexcept {
 			  } else {
 				  resp.status(500, "Internal Render Error");
 			  }
-		  } catch (std::exception e) {
+		  } catch (std::exception& e) {
 			  resp.status(500, "Internal Render Error");
 		  }
 		  pending = false;
 	  });
+	  // This bit of code ensures that the loop will get run once
+	  // after the loader sets this up on a thread ensuring execution
+	  // of the callback.
 	  while(pending)  {
 		  loop->runOnce();
 	  }
@@ -95,10 +101,6 @@ void TileHandler::onUpgrade(UpgradeProtocol /*protocol*/) noexcept {
 }
 
 void TileHandler::requestComplete() noexcept {
-	if (tilePath_ != NULL) {
-	} else {
-		std::cout << "Tile Path is null!" << std::endl;
-	}
   delete tilePath_;
   delete this;
 }

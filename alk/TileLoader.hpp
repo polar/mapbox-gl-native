@@ -14,14 +14,13 @@ public:
 	TileLoader(TilePath *tilePath_, RasterTileRenderer* renderer_);
 	void load(std::function<void (Tile&)> callback);
 private:
-	void loadFromCache(std::function<void (Tile&)> callback) ;
-	void loadFromRendering(mbgl::Response& res, std::function<void (Tile&)> callback);
-	void loadFromRendering(mbgl::Response& res) ;
-	void loadedData(const mbgl::Response& res);
+	void fromCacheOrRenderer(std::function<void (Tile&)> callback) ;
+	void loadFromRenderer(mbgl::Response& res, std::function<void (Tile&)> callback);
+	void loadFromCache(const mbgl::Response& res);
 	Tile tile;
     mbgl::Resource resource;
     RasterTileRenderer* rasterTileRenderer;
-    RenderCache* fileSource;
+    RenderCache* renderCache;
     std::unique_ptr<mbgl::AsyncRequest> request;
     std::function<void (Tile&)> dataCallback;
 };

@@ -20,10 +20,11 @@
 namespace alk {
 
 struct RenderStats {
-	std::chrono::steady_clock::time_point renderStartTime;
+	std::string id;
+	std::chrono::system_clock::time_point renderStartTime;
 	std::chrono::duration<double, std::milli> renderingCurrentTotalDuration;
 	std::chrono::duration<double, std::milli> minimumRenderDuration;
-	TilePath              mimimumRenderTilePath;
+	TilePath              minimumRenderTilePath;
 	std::chrono::duration<double, std::milli> maximumRenderDuration;
 	TilePath              maximumRenderTilePath;
 	std::chrono::duration<double, std::milli> encodingCurrentTotalDuration;
@@ -33,6 +34,7 @@ struct RenderStats {
 class RasterTileRenderer {
 public:
 	explicit RasterTileRenderer(
+			std::string id_,
 			std::string styleUrl_,
 			const uint32_t height_,
 			const uint32_t width_,
@@ -52,6 +54,7 @@ public:
 	RenderStats& getRenderStats();
 
 protected:
+	std::string id;
 	std::string styleUrl;
     const uint32_t width;
     const uint32_t height;

@@ -16,7 +16,6 @@
 #include <mbgl/layout/symbol_projection.hpp>
 #include <mbgl/util/math.hpp>
 
-#include <iostream>
 #include <cmath>
 
 namespace mbgl {
@@ -76,7 +75,6 @@ void RenderSymbolLayer::render(PaintParameters& parameters, RenderSource*) {
     }
 
     for (const RenderTile& tile : renderTiles) {
-    	std::cout << "RenderTile.render(" << 0.0 + tile.id.canonical.z << "," << 0.0 + tile.id.canonical.x << "," << 0.0 + tile.id.canonical.y << ")" << std::endl;
         assert(dynamic_cast<SymbolBucket*>(tile.tile.getBucket(*baseImpl)));
         SymbolBucket& bucket = *reinterpret_cast<SymbolBucket*>(tile.tile.getBucket(*baseImpl));
 

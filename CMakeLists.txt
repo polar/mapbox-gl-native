@@ -154,10 +154,6 @@ if(COMMAND mbgl_platform_render)
     include(cmake/render.cmake)
 endif()
 
-if(COMMAND mbgl_platform_render_zxy)
-    include(cmake/render-zxy.cmake)
-endif()
-
 if(COMMAND mbgl_platform_offline)
     include(cmake/offline.cmake)
 endif()
@@ -166,13 +162,16 @@ if(COMMAND mbgl_platform_node)
     include(cmake/node.cmake)
 endif()
 
-if(COMMAND alk_rts)
-    include(cmake/alk-rts.cmake)
-endif()
-
 if(CMAKE_GENERATOR STREQUAL "Xcode")
     write_xcconfig_target_properties(
         mbgl-core
         mbgl-filesource
     )
+endif()
+
+macro(alk_rts)
+endmacro()
+
+if(COMMAND alk_rts)
+    include(cmake/alk-rts.cmake)
 endif()

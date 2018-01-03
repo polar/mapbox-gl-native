@@ -121,7 +121,6 @@ void Renderer::Impl::render(const UpdateParameters& updateParameters) {
         updateParameters.prefetchZoomDelta
     };
 
-    std::cout << "RenderImpl.render " << updateParameters.pixelRatio << std::endl;
     glyphManager->setURL(updateParameters.glyphURL);
 
     // Update light.

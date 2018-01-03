@@ -38,6 +38,7 @@ namespace alk {
  * The pixel ratio governs the sprites and raster tiles included in the style.
  * That is, pixel ratio of 2 adds "@2x" to any sprites URL in the style.
  *
+ * @param {string}       id          The id of this renderer.
  * @param {string}       styleUrl_   This is the url of the style.
  *                            http::/tiles-dev.alk.com/styles/default/styles.json
  *                            ./style.json  (for file)
@@ -54,14 +55,14 @@ namespace alk {
  * @param {std::mutex&} renderMutex_ This is the mutex with which to protect the
  *                                   rendering around the GL library, which seems
  *                                   to not be thread safe. It has thread safe
- *                                   render threads, but the library in general is
- *                                   not thread safe we use this around rendering, yet
- *                                   allow threads for HTTP requests.
+ *                                   render threads, We use this mutex around rendering,
+ *                                   allowing different threads for multiple HTTP requests.
  * @param {ThreadPool} renderThreads This is a thread pool that the GL renderer may use.
  *
  * For normal applications, use 256,256,1.
  */
 RasterTileRenderer::RasterTileRenderer(
+		std::string id_,
 		std::string styleUrl_,
 		const uint32_t width_,
 		const uint32_t height_,
@@ -72,7 +73,8 @@ RasterTileRenderer::RasterTileRenderer(
         mbgl::FileSource& fileSource_,
 		std::mutex& renderMutex_,
 		int renderThreads_)
-	: styleUrl(styleUrl_),
+	: id(id_),
+	  styleUrl(styleUrl_),
 	  width(width_),
 	  height(height_),
 	  pixelRatio(pixelRatio_),
@@ -88,10 +90,13 @@ RasterTileRenderer::RasterTileRenderer(
 			        mbgl::MapObserver::nullObserver(),
 					// Height and width doesn't matter much here for rendering as
 					// it always seems to render enough.
-					{width_, height_}, // This really doesn't matter.
+					{width_, height_}, // This parameter apparently doesn't matter.
 					// pixelRatio here governs what is downloaded from the styles, such as sprites @2x
 					// and raster tiles from the internet.
 					pixelRatio_,
+					// file source contains the sources and caches local to the machine
+					// for all tile resource requests. The file source will go to the network
+					// if it needs something it doesn't already have.
 					fileSource,
 					this->threadPool,
 					// We need Static or Tile.
@@ -106,12 +111,12 @@ RasterTileRenderer::RasterTileRenderer(
     map.setPitch(pitch);
     //map.setDebug(mbgl::MapDebugOptions::TileBorders |
     //		mbgl::MapDebugOptions::ParseStatus);
-
-	std::chrono::steady_clock::time_point begin =
-			std::chrono::steady_clock::now();
+    renderStats.id = id;
+	std::chrono::system_clock::time_point begin =
+			std::chrono::system_clock::now();
     renderStats.renderStartTime = begin;
-    renderStats.minimumRenderDuration = std::chrono::duration<double, std::milli>::min();
-    renderStats.maximumRenderDuration = std::chrono::duration<double, std::milli>::max();
+    renderStats.minimumRenderDuration = std::chrono::duration<double, std::milli>::max();
+    renderStats.maximumRenderDuration = std::chrono::duration<double, std::milli>::min();
 };
 
 double RasterTileRenderer::getPixelRatio() {
@@ -142,8 +147,8 @@ static void tile2lonlat(double x, double y, int zoom, double *lon, double *lat) 
 }
 
 void RasterTileRenderer::renderTile(TilePath *path, std::function<void (const std::string data)> callback) {
-	std::chrono::steady_clock::time_point begin =
-			std::chrono::steady_clock::now();
+	std::chrono::system_clock::time_point begin =
+			std::chrono::system_clock::now();
 	double lat = 0, lon = 0;
 	// The x,y integers in this calculation gets us the NW corner, but we need to set the center.
 	// The center is 0.5+x, 0.5+y.
@@ -163,13 +168,13 @@ void RasterTileRenderer::renderTile(TilePath *path, std::function<void (const st
 	frontend.render(map, [=] (mbgl::PremultipliedImage result) {
 		// We are done with GL Rendering.
 		renderMutex.unlock();
-		std::chrono::steady_clock::time_point end =
-				std::chrono::steady_clock::now();
+		std::chrono::system_clock::time_point end =
+				std::chrono::system_clock::now();
 		std::chrono::duration<double, std::milli> duration = end - begin;
 		renderStats.numberOfRequests++;
 		if (duration < renderStats.minimumRenderDuration) {
 			renderStats.minimumRenderDuration = duration;
-			renderStats.mimimumRenderTilePath = *path;
+			renderStats.minimumRenderTilePath = *path;
 		}
 		if (duration > renderStats.maximumRenderDuration) {
 			renderStats.maximumRenderDuration = duration;
@@ -180,8 +185,8 @@ void RasterTileRenderer::renderTile(TilePath *path, std::function<void (const st
 				<< path->to_s()
 				<< " in " << std::chrono::duration_cast<std::chrono::milliseconds>(end-begin).count() << "ms" << std::endl;
 		auto data = mbgl::encodePNG(std::move(result));
-		std::chrono::steady_clock::time_point end2 =
-				std::chrono::steady_clock::now();
+		std::chrono::system_clock::time_point end2 =
+				std::chrono::system_clock::now();
 
 		std::chrono::duration<double, std::milli> encDuration = end2 - end;
 		renderStats.encodingCurrentTotalDuration += encDuration;

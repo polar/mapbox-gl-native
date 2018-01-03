@@ -13,7 +13,6 @@
 #include <mbgl/util/work_request.hpp>
 
 #include <cassert>
-#include <iostream>
 
 namespace {
 
@@ -253,8 +252,6 @@ void DefaultFileSource::setResourceTransform(optional<ActorRef<ResourceTransform
 }
 
 std::unique_ptr<AsyncRequest> DefaultFileSource::request(const Resource& resource, Callback callback) {
-	std::cout << "DefaultFileSource.request: " << resource.url << std::endl;
-
     auto req = std::make_unique<FileSourceRequest>(std::move(callback));
 
     req->onCancel([fs = impl->actor(), req = req.get()] () mutable { fs.invoke(&Impl::cancel, req); });

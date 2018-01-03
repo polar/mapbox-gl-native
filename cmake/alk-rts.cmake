@@ -9,10 +9,20 @@ target_sources(alk-rts
     PRIVATE alk/MbTilesDatabase.hpp
     PRIVATE alk/MbTilesFileSource.cpp
     PRIVATE alk/MbTilesFileSource.hpp
+    PRIVATE alk/SourcesFileSource.cpp
+    PRIVATE alk/SourcesFileSource.hpp
+    PRIVATE alk/SourcesDefaultFileSource.cpp
+    PRIVATE alk/SourcesDefaultFileSource.hpp
+    PRIVATE alk/SourceSpec.cpp
+    PRIVATE alk/SourceSpec.hpp
+    PRIVATE alk/SourcesSpecLoader.cpp
+    PRIVATE alk/SourcesSpecLoader.hpp
     PRIVATE alk/Tile.cpp
     PRIVATE alk/Tile.hpp
     PRIVATE alk/TileHandler.cpp
     PRIVATE alk/TileHandler.hpp
+    PRIVATE alk/StatsHandler.cpp
+    PRIVATE alk/StatsHandler.hpp
     PRIVATE alk/TileLoader.cpp
     PRIVATE alk/TileLoader.hpp
     PRIVATE alk/TilePath.cpp
@@ -24,6 +34,8 @@ target_sources(alk-rts
     PRIVATE alk/Map.cpp
     PRIVATE alk/RenderCache.hpp
     PRIVATE alk/RenderCache.cpp
+    PRIVATE alk/compress.hpp
+    PRIVATE alk/compress.cpp
 )
 
 target_compile_options(alk-rts

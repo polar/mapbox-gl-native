@@ -428,6 +428,141 @@ alk/RenderCache.cpp.s:
 	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/RenderCache.cpp.s
 .PHONY : alk/RenderCache.cpp.s
 
+alk/SourceSpec.o: alk/SourceSpec.cpp.o
+
+.PHONY : alk/SourceSpec.o
+
+# target to build an object file
+alk/SourceSpec.cpp.o:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourceSpec.cpp.o
+.PHONY : alk/SourceSpec.cpp.o
+
+alk/SourceSpec.i: alk/SourceSpec.cpp.i
+
+.PHONY : alk/SourceSpec.i
+
+# target to preprocess a source file
+alk/SourceSpec.cpp.i:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourceSpec.cpp.i
+.PHONY : alk/SourceSpec.cpp.i
+
+alk/SourceSpec.s: alk/SourceSpec.cpp.s
+
+.PHONY : alk/SourceSpec.s
+
+# target to generate assembly for a file
+alk/SourceSpec.cpp.s:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourceSpec.cpp.s
+.PHONY : alk/SourceSpec.cpp.s
+
+alk/SourcesDefaultFileSource.o: alk/SourcesDefaultFileSource.cpp.o
+
+.PHONY : alk/SourcesDefaultFileSource.o
+
+# target to build an object file
+alk/SourcesDefaultFileSource.cpp.o:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourcesDefaultFileSource.cpp.o
+.PHONY : alk/SourcesDefaultFileSource.cpp.o
+
+alk/SourcesDefaultFileSource.i: alk/SourcesDefaultFileSource.cpp.i
+
+.PHONY : alk/SourcesDefaultFileSource.i
+
+# target to preprocess a source file
+alk/SourcesDefaultFileSource.cpp.i:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourcesDefaultFileSource.cpp.i
+.PHONY : alk/SourcesDefaultFileSource.cpp.i
+
+alk/SourcesDefaultFileSource.s: alk/SourcesDefaultFileSource.cpp.s
+
+.PHONY : alk/SourcesDefaultFileSource.s
+
+# target to generate assembly for a file
+alk/SourcesDefaultFileSource.cpp.s:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourcesDefaultFileSource.cpp.s
+.PHONY : alk/SourcesDefaultFileSource.cpp.s
+
+alk/SourcesFileSource.o: alk/SourcesFileSource.cpp.o
+
+.PHONY : alk/SourcesFileSource.o
+
+# target to build an object file
+alk/SourcesFileSource.cpp.o:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourcesFileSource.cpp.o
+.PHONY : alk/SourcesFileSource.cpp.o
+
+alk/SourcesFileSource.i: alk/SourcesFileSource.cpp.i
+
+.PHONY : alk/SourcesFileSource.i
+
+# target to preprocess a source file
+alk/SourcesFileSource.cpp.i:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourcesFileSource.cpp.i
+.PHONY : alk/SourcesFileSource.cpp.i
+
+alk/SourcesFileSource.s: alk/SourcesFileSource.cpp.s
+
+.PHONY : alk/SourcesFileSource.s
+
+# target to generate assembly for a file
+alk/SourcesFileSource.cpp.s:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourcesFileSource.cpp.s
+.PHONY : alk/SourcesFileSource.cpp.s
+
+alk/SourcesSpecLoader.o: alk/SourcesSpecLoader.cpp.o
+
+.PHONY : alk/SourcesSpecLoader.o
+
+# target to build an object file
+alk/SourcesSpecLoader.cpp.o:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourcesSpecLoader.cpp.o
+.PHONY : alk/SourcesSpecLoader.cpp.o
+
+alk/SourcesSpecLoader.i: alk/SourcesSpecLoader.cpp.i
+
+.PHONY : alk/SourcesSpecLoader.i
+
+# target to preprocess a source file
+alk/SourcesSpecLoader.cpp.i:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourcesSpecLoader.cpp.i
+.PHONY : alk/SourcesSpecLoader.cpp.i
+
+alk/SourcesSpecLoader.s: alk/SourcesSpecLoader.cpp.s
+
+.PHONY : alk/SourcesSpecLoader.s
+
+# target to generate assembly for a file
+alk/SourcesSpecLoader.cpp.s:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/SourcesSpecLoader.cpp.s
+.PHONY : alk/SourcesSpecLoader.cpp.s
+
+alk/StatsHandler.o: alk/StatsHandler.cpp.o
+
+.PHONY : alk/StatsHandler.o
+
+# target to build an object file
+alk/StatsHandler.cpp.o:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/StatsHandler.cpp.o
+.PHONY : alk/StatsHandler.cpp.o
+
+alk/StatsHandler.i: alk/StatsHandler.cpp.i
+
+.PHONY : alk/StatsHandler.i
+
+# target to preprocess a source file
+alk/StatsHandler.cpp.i:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/StatsHandler.cpp.i
+.PHONY : alk/StatsHandler.cpp.i
+
+alk/StatsHandler.s: alk/StatsHandler.cpp.s
+
+.PHONY : alk/StatsHandler.s
+
+# target to generate assembly for a file
+alk/StatsHandler.cpp.s:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/StatsHandler.cpp.s
+.PHONY : alk/StatsHandler.cpp.s
+
 alk/Tile.o: alk/Tile.cpp.o
 
 .PHONY : alk/Tile.o
@@ -562,6 +697,33 @@ alk/TileServer.s: alk/TileServer.cpp.s
 alk/TileServer.cpp.s:
 	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/TileServer.cpp.s
 .PHONY : alk/TileServer.cpp.s
+
+alk/compress.o: alk/compress.cpp.o
+
+.PHONY : alk/compress.o
+
+# target to build an object file
+alk/compress.cpp.o:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/compress.cpp.o
+.PHONY : alk/compress.cpp.o
+
+alk/compress.i: alk/compress.cpp.i
+
+.PHONY : alk/compress.i
+
+# target to preprocess a source file
+alk/compress.cpp.i:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/compress.cpp.i
+.PHONY : alk/compress.cpp.i
+
+alk/compress.s: alk/compress.cpp.s
+
+.PHONY : alk/compress.s
+
+# target to generate assembly for a file
+alk/compress.cpp.s:
+	$(MAKE) -f CMakeFiles/alk-rts.dir/build.make CMakeFiles/alk-rts.dir/alk/compress.cpp.s
+.PHONY : alk/compress.cpp.s
 
 benchmark/api/query.benchmark.o: benchmark/api/query.benchmark.cpp.o
 
@@ -11374,6 +11536,21 @@ help:
 	@echo "... alk/RenderCache.o"
 	@echo "... alk/RenderCache.i"
 	@echo "... alk/RenderCache.s"
+	@echo "... alk/SourceSpec.o"
+	@echo "... alk/SourceSpec.i"
+	@echo "... alk/SourceSpec.s"
+	@echo "... alk/SourcesDefaultFileSource.o"
+	@echo "... alk/SourcesDefaultFileSource.i"
+	@echo "... alk/SourcesDefaultFileSource.s"
+	@echo "... alk/SourcesFileSource.o"
+	@echo "... alk/SourcesFileSource.i"
+	@echo "... alk/SourcesFileSource.s"
+	@echo "... alk/SourcesSpecLoader.o"
+	@echo "... alk/SourcesSpecLoader.i"
+	@echo "... alk/SourcesSpecLoader.s"
+	@echo "... alk/StatsHandler.o"
+	@echo "... alk/StatsHandler.i"
+	@echo "... alk/StatsHandler.s"
 	@echo "... alk/Tile.o"
 	@echo "... alk/Tile.i"
 	@echo "... alk/Tile.s"
@@ -11389,6 +11566,9 @@ help:
 	@echo "... alk/TileServer.o"
 	@echo "... alk/TileServer.i"
 	@echo "... alk/TileServer.s"
+	@echo "... alk/compress.o"
+	@echo "... alk/compress.i"
+	@echo "... alk/compress.s"
 	@echo "... benchmark/api/query.benchmark.o"
 	@echo "... benchmark/api/query.benchmark.i"
 	@echo "... benchmark/api/query.benchmark.s"

@@ -21,48 +21,44 @@ TileLoader::TileLoader(TilePath* tilePath_, RasterTileRenderer* renderer_) :
 	        mbgl::Tileset::Scheme::XYZ,
 	        mbgl::Resource::LoadingMethod::CacheOnly)),
 			rasterTileRenderer(renderer_),
-	      fileSource(&renderer_->getRenderCache())
+	      renderCache(&renderer_->getRenderCache())
 	{
 			assert(!this->request);
 	}
 
 void TileLoader::load(std::function<void (Tile&)> callback) {
-		loadFromCache(callback);
+		fromCacheOrRenderer(callback);
 	}
-void TileLoader::loadFromCache(std::function<void (Tile&)> callback) {
+
+void TileLoader::fromCacheOrRenderer(std::function<void (Tile&)> callback) {
 	    assert(!request);
 
 	    std::cerr << "Load from Cache " << tile.path->to_s() << std::endl;
 	    resource.loadingMethod = mbgl::Resource::LoadingMethod::CacheOnly;
-	    request = fileSource->request(resource, [this, callback](mbgl::Response res) {
+	    request = renderCache->request(resource, [this, callback](mbgl::Response res) {
 	        request.reset();
 
 	        if (res.error && res.error->reason == mbgl::Response::Error::Reason::NotFound) {
-	            // When the cache-only request could not be satisfied, don't treat it as an error.
-	            // A cache lookup could still return data, _and_ an error, in particular when we were
-	            // able to find the data, but it is expired and the Cache-Control headers indicated that
-	            // we aren't allowed to use expired responses. In this case, we still get the data which
-	            // we can use in our conditional network request.
 	            resource.priorModified = res.modified;
 	            resource.priorExpires = res.expires;
 	            resource.priorEtag = res.etag;
 	            resource.priorData = res.data;
 	        	std::cout << "Not Found in Cache " << tile.path->to_s() << std::endl;
-	            loadFromRendering(res, [this, callback] (Tile& tile_) {
+	            loadFromRenderer(res, [this, callback] (Tile& tile_) {
 	            	callback(tile_);
 	            });
 	        } else {
 	        	std::cout << "Found in Cache " << tile.path->to_s() << std::endl;
-	            loadedData(res);
+	            loadFromCache(res);
 		        callback(tile);
 	        }
 	    });
 	}
 
-void TileLoader::loadFromRendering(mbgl::Response& response, std::function<void (Tile&)> callback) {
+void TileLoader::loadFromRenderer(mbgl::Response& response, std::function<void (Tile&)> callback) {
 	rasterTileRenderer->renderTile(tile.path, [this, response, callback] (const std::string data) {
 		mbgl::Timestamp begin = mbgl::util::now();
-		// TODO:: FIx Expired Time
+		// TODO:: Fix Expired Time
 		tile.setMetadata(begin, begin + std::chrono::hours(30));
 		// We make shared pointer to the data, because the put will be an async task.
 		auto d = std::make_shared<const std::string>(data);
@@ -73,15 +69,12 @@ void TileLoader::loadFromRendering(mbgl::Response& response, std::function<void 
 		resp.mustRevalidate = false;
 		// This is an async task that will be executing on another thread.
 		// It will release the shared object;
-		fileSource->put(resource, resp);
+		renderCache->put(resource, resp);
 		callback(tile);
 	});
 }
 
-void TileLoader::loadFromRendering(mbgl::Response& res) {
-	}
-
-void TileLoader::loadedData(const mbgl::Response& res) {
+void TileLoader::loadFromCache(const mbgl::Response& res) {
 	    if (res.error && res.error->reason != mbgl::Response::Error::Reason::NotFound) {
 	        tile.setError(std::make_exception_ptr(std::runtime_error(res.error->message)));
 	    } else if (res.notModified) {

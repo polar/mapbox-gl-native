@@ -4,7 +4,6 @@
 #include <mbgl/storage/file_source.hpp>
 #include <mbgl/renderer/tile_parameters.hpp>
 #include <mbgl/util/tileset.hpp>
-#include <iostream>
 
 #include <cassert>
 
@@ -119,8 +118,6 @@ void TileLoader<T>::loadFromNetwork() {
     // NetworkOnly request.
     resource.loadingMethod = Resource::LoadingMethod::NetworkOnly;
     request = fileSource.request(resource, [this](Response res) { loadedData(res); });
-    std::cout << "Getting tile data "<< resource.url << "[" << (int) resource.tileData.value().z << "/"  << resource.tileData.value().x << "/" << resource.tileData.value().y <<
-    		"@" << resource.tileData.value().pixelRatio <<  "]" << std::endl;
 }
 
 } // namespace mbgl

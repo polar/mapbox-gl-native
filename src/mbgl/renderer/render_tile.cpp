@@ -6,7 +6,7 @@
 #include <mbgl/map/transform_state.hpp>
 #include <mbgl/tile/tile.hpp>
 #include <mbgl/util/math.hpp>
-#include <iostream>
+
 namespace mbgl {
 
 using namespace style;
@@ -27,7 +27,7 @@ mat4 RenderTile::translateVtxMatrix(const mat4& tileMatrix,
         (anchor == TranslateAnchorType::Viewport ? -state.getAngle() : 0);
 
     Point<float> translate = util::rotate(Point<float>{ translation[0], translation[1] }, angle);
-    std::cout << "RenderTile:translateVtxMatrix: inViewportPixelUnits " << inViewportPixelUnits << " state.zoom " << state.getZoom() << std::endl;
+
     if (inViewportPixelUnits) {
         matrix::translate(vtxMatrix, tileMatrix, translate.x, translate.y, 0);
     } else {
