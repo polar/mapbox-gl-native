@@ -8,6 +8,7 @@
 #include <cassert>
 #include <functional>
 #include <unordered_map>
+#include <iostream>
 
 namespace {
 
@@ -75,7 +76,11 @@ public:
 
     std::unordered_map<int, std::unique_ptr<Watch>> watchPoll;
 };
-
+RunLoop::RunLoop(std::string &name_, Type type) :
+    name(name_), RunLoop(type) {
+        std::cerr << "RunLoop(" << name << ")" << std::endl;
+    }
+    
 RunLoop::RunLoop(Type type) : impl(std::make_unique<Impl>()) {
     switch (type) {
     case Type::New:
@@ -102,6 +107,7 @@ RunLoop::RunLoop(Type type) : impl(std::make_unique<Impl>()) {
 }
 
 RunLoop::~RunLoop() {
+    std::cerr << "~RunLoop(" << name << ")" << std::endl;
     Scheduler::SetCurrent(nullptr);
 
     // Close the dummy handle that we have
@@ -120,7 +126,8 @@ RunLoop::~RunLoop() {
     runOnce();
 
     if (uv_loop_close(impl->loop) == UV_EBUSY) {
-        assert(false && "Failed to close loop.");
+        std::cerr << "~RunLoop(" << name << ").runloop UV_EBUSY" << std::endl;
+        //assert(false && "Failed to close loop.");
     }
     delete impl->loop;
 }
