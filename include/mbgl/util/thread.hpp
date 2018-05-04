@@ -15,6 +15,7 @@
 #include <string>
 #include <thread>
 #include <utility>
+#include <iostream>
 
 namespace mbgl {
 namespace util {
@@ -53,7 +54,9 @@ public:
             object = std::make_unique<Actor<Object>>(*this, std::forward<Args>(args)...);
             running.set_value();
 
+            std::cerr << "mbgl::util::Thread(" << name << ").RunLoop().run" << std::endl;
             loop->run();
+            std::cerr << "mbgl::util::Thread(" << name << ").RunLoop().run().ended" << std::endl;
             loop = nullptr;
         });
 
