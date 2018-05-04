@@ -97,6 +97,7 @@ private:
     std::mutex mutex;
 
     std::unique_ptr<Impl> impl;
+    std::string name;
 };
 
 } // namespace util
