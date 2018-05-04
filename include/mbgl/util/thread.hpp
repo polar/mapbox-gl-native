@@ -49,7 +49,7 @@ public:
             platform::setCurrentThreadName(name);
             platform::makeThreadLowPriority();
 
-            util::RunLoop loop_(util::RunLoop::Type::New);
+            util::RunLoop loop_(threadName, util::RunLoop::Type::New);
             loop = &loop_;
 
             object = std::make_unique<Actor<Object>>(*this, std::forward<Args>(args)...);
