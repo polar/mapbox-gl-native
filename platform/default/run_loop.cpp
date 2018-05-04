@@ -77,7 +77,7 @@ public:
     std::unordered_map<int, std::unique_ptr<Watch>> watchPoll;
 };
 RunLoop::RunLoop(std::string &name_, Type type) :
-    name(name_), RunLoop(type) {
+    RunLoop(type), name(name_) {
         std::cerr << "RunLoop(" << name << ")" << std::endl;
     }
     
