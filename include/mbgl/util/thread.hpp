@@ -45,6 +45,7 @@ public:
         std::promise<void> running;
 
         thread = std::thread([&] {
+            std::string threadName(name);
             platform::setCurrentThreadName(name);
             platform::makeThreadLowPriority();
 
@@ -54,9 +55,9 @@ public:
             object = std::make_unique<Actor<Object>>(*this, std::forward<Args>(args)...);
             running.set_value();
 
-            std::cerr << "mbgl::util::Thread(" << name << ").RunLoop().run" << std::endl;
+            std::cerr << "mbgl::util::Thread(" << threadName << ").RunLoop().run" << std::endl;
             loop->run();
-            std::cerr << "mbgl::util::Thread(" << name << ").RunLoop().run().ended" << std::endl;
+            std::cerr << "mbgl::util::Thread(" << threadName << ").RunLoop().run().ended" << std::endl;
             loop = nullptr;
         });
 
