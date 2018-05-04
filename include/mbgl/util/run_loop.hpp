@@ -34,6 +34,7 @@ public:
     };
 
     RunLoop(Type type = Type::Default);
+    RunLoop(std::string &name, Type type = Type::Default);
     ~RunLoop() override;
 
     static RunLoop* Get();
